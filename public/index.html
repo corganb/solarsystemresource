@@ -830,6 +830,13 @@ function initSolarSystem() {
         arr.length = 0;
         for (var i = 0; i < out.length; i++) arr.push(out[i]);
       }
+      // Respect current toggle state at time of resolution (async race fix).
+      // If the user toggled OFF while fetch was in flight, the layer's visible
+      // flag is now false and we must hide everything we just created.
+      var layerNow = S.layers.find(function(l) { return l.id === 'moons'; });
+      if (layerNow && !layerNow.visible) {
+        setLayerVisibility(out, false);
+      }
       showToast(out.length + ' major moons loaded (labels appear when zoomed in)');
     }).catch(function(e) {
       console.warn('[SSR] NaturalSatellites load failed:', e);
@@ -1065,6 +1072,11 @@ function loadHistoricalMissions() {
         sceneObjects['historical-missions'].push(missionObjects[i]);
       }
       sceneObjects['historical-missions']._loaded = true;
+      // Respect current toggle state at time of resolution (async race fix).
+      var layerNow = S.layers.find(function(l) { return l.id === 'historical-missions'; });
+      if (layerNow && !layerNow.visible) {
+        setLayerVisibility(missionObjects, false);
+      }
       showToast(missionObjects.length + ' historical missions rendered (positions approximate)');
     })
     .catch(function(e) { console.warn('[Historical Missions] Failed to load:', e); });
@@ -1113,12 +1125,14 @@ function toggleLayer(layerId) {
 
 // Unified show/hide for any layer's array of objects. Handles three flavors:
 //   1. Spacekit SpaceObject (get3jsObjects() returns [sprite, orbitPath, eclipticLines],
-//      setLabelVisibility() controls the DOM label, getOrbit() controls the orbit line)
+//      _label is the DOM label, getOrbit() controls the orbit line)
 //   2. Wrapped raw Three.js mesh via makeThreeWrapper() (has _threeObj)
 //   3. Anything else: silently skip
-// The critical bug this fixes: spacekit exposes get3jsObjects() (plural) not getThreeObject(),
-// so the earlier single-object approach missed sprites, orbit lines, ecliptic lines, AND
-// did not hide the HTML label element. That made toggle-off feel partially broken.
+//
+// Label hiding is done aggressively and defensively:
+//   - Direct _label.style.display writes (bypasses setLabelVisibility's throw-if-no-label guard)
+//   - _showLabel flag flipped so update() loop doesn't fight us on subsequent frames
+//   - visibility style also set as a belt-and-suspenders measure
 function setLayerVisibility(objects, visible) {
   (objects || []).forEach(function(obj) {
     if (!obj) return;
@@ -1135,9 +1149,14 @@ function setLayerVisibility(objects, visible) {
         var orb = obj.getOrbit();
         if (orb && typeof orb.setVisibility === 'function') orb.setVisibility(visible);
       }
-      // DOM label
-      if (typeof obj.setLabelVisibility === 'function') {
-        try { obj.setLabelVisibility(visible); } catch(_) {}
+      // DOM label: direct property manipulation, no try/catch that swallows errors.
+      if (obj._label) {
+        obj._label.style.display = visible ? 'block' : 'none';
+        obj._label.style.visibility = visible ? 'visible' : 'hidden';
+      }
+      // Prevent update() loop from repositioning / unhiding the label next frame
+      if (typeof obj._showLabel !== 'undefined') {
+        obj._showLabel = !!visible;
       }
       // Raw Three.js wrapper
       if (obj._threeObj) obj._threeObj.visible = visible;
