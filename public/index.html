@@ -824,15 +824,13 @@ function initSolarSystem() {
           } catch(e) { console.warn('[SSR] moon', s.name, e); }
         });
       });
-      // Swap into sceneObjects in place so the existing array reference stays valid
-      var arr = sceneObjects['moons'];
-      if (arr) {
-        arr.length = 0;
-        for (var i = 0; i < out.length; i++) arr.push(out[i]);
-      }
-      // Respect current toggle state at time of resolution (async race fix).
-      // If the user toggled OFF while fetch was in flight, the layer's visible
-      // flag is now false and we must hide everything we just created.
+      // NOTE: out is the SAME array reference as sceneObjects['moons'] because
+      // toggleLayer did `sceneObjects['moons'] = layerBuilders['moons']()`.
+      // Pushing to out here automatically exposes the moons to the toggle machinery.
+      // Do NOT clear-and-copy — that would wipe the array we just populated.
+
+      // Async race: if the user toggled OFF while fetch was in flight, hide
+      // everything we just created before the user sees it pop in.
       var layerNow = S.layers.find(function(l) { return l.id === 'moons'; });
       if (layerNow && !layerNow.visible) {
         setLayerVisibility(out, false);
@@ -1066,13 +1064,13 @@ function loadHistoricalMissions() {
           missionObjects.push(obj);
         } catch(e) { console.warn('[SSR] mission', m.id, e); }
       });
-      // Swap the live array in place so toggleLayer's hide loop finds them.
-      sceneObjects['historical-missions'].length = 0;
-      for (var i = 0; i < missionObjects.length; i++) {
-        sceneObjects['historical-missions'].push(missionObjects[i]);
-      }
+      // NOTE: missionObjects is the SAME array reference as
+      // sceneObjects['historical-missions']. Pushing to it above already
+      // exposed the missions to the toggle machinery. Do NOT clear-and-copy.
       sceneObjects['historical-missions']._loaded = true;
-      // Respect current toggle state at time of resolution (async race fix).
+
+      // Async race: if the user toggled OFF while the fetch was in flight,
+      // hide everything we just created before it pops in.
       var layerNow = S.layers.find(function(l) { return l.id === 'historical-missions'; });
       if (layerNow && !layerNow.visible) {
         setLayerVisibility(missionObjects, false);
