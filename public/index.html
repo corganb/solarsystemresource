@@ -540,10 +540,11 @@ html, body {
 // Pro layers (marked with proLock) require researcher tier or higher.
 var LAYERS = [
   // Bodies
-  { id: 'planets',     title: 'Planets',          category: 'Bodies',        source: 'jpl',  desc: 'Sun + 8 planets with orbital paths', visible: true },
-  { id: 'orbits',      title: 'Orbit Lines',      category: 'Bodies',        source: 'jpl',  desc: 'Keplerian orbit paths (ecliptic)',   visible: true },
-  { id: 'dwarfs',      title: 'Dwarf Planets',    category: 'Bodies',        source: 'jpl',  desc: 'Pluto, Ceres, Eris, Haumea, Makemake', visible: false },
-  { id: 'moons',       title: 'Major Moons',      category: 'Bodies',        source: 'jpl',  desc: 'Principal moons of each planet',      visible: false },
+  { id: 'planets',       title: 'Planets',       category: 'Bodies', source: 'jpl',  desc: 'Sun + 8 planets',                       visible: true },
+  { id: 'orbits',        title: 'Orbit Lines',   category: 'Bodies', source: 'jpl',  desc: 'Keplerian orbit paths (ecliptic)',      visible: true },
+  { id: 'planet-labels', title: 'Planet Labels', category: 'Bodies', source: 'jpl',  desc: 'Name tags on Sun + 8 planets',          visible: true },
+  { id: 'dwarfs',        title: 'Dwarf Planets', category: 'Bodies', source: 'jpl',  desc: 'Pluto, Ceres, Eris, Haumea, Makemake',  visible: false },
+  { id: 'moons',         title: 'Major Moons',   category: 'Bodies', source: 'jpl',  desc: 'Principal moons of each planet',        visible: false },
 
   // Spacecraft
   { id: 'active-spacecraft',   title: 'Active Spacecraft',   category: 'Spacecraft', source: 'nasa', desc: 'Voyager, Juno, Parker, NH, JUICE, Clipper', visible: false },
@@ -673,6 +674,30 @@ function initSolarSystem() {
         get3jsObjects: function() { return []; },
         getOrbit: function() { return typeof planet.getOrbit === 'function' ? planet.getOrbit() : null; }
       });
+    });
+    return out;
+  };
+
+  // ── LAYER BUILDER: planet labels ──
+  // A separate toggle for just the Sun + 8 planets name tags, so users can
+  // hide the text without hiding the bodies. Each wrapper holds a direct
+  // reference to the underlying planet's _label DOM element. When the layer
+  // is toggled, setLayerVisibility's _label branch sets display on the
+  // shared DOM node. Additionally cascadePlanetLabels() below handles the
+  // cross-layer interaction with the Planets toggle (labels should hide
+  // when planets is off, regardless of this layer's state).
+  layerBuilders['planet-labels'] = function() {
+    if (!sceneObjects['planets'] || sceneObjects['planets'].length === 0) {
+      return [];
+    }
+    var out = [];
+    sceneObjects['planets'].forEach(function(planet) {
+      if (planet._label) {
+        out.push({
+          _label: planet._label,
+          get3jsObjects: function() { return []; }
+        });
+      }
     });
     return out;
   };
@@ -1208,8 +1233,32 @@ function toggleLayer(layerId) {
     setLayerVisibility(sceneObjects[layerId] || [], false, layerId);
   }
 
+  // Cross-layer cascade: planet labels are shared between the Planets and
+  // Planet Labels toggles. Their effective visibility is the AND of both.
+  if (layerId === 'planets' || layerId === 'planet-labels') {
+    cascadePlanetLabels();
+  }
+
   renderSidebar();
   updateStatusBar();
+}
+
+// Compute the effective visibility of planet labels as Planets AND Planet Labels
+// and apply it directly to each planet's _label DOM element. Called after any
+// toggle of either layer so neither can "overwrite" the other's intent.
+function cascadePlanetLabels() {
+  var pLayer = (S.layers || []).find(function(l) { return l.id === 'planets'; });
+  var plLayer = (S.layers || []).find(function(l) { return l.id === 'planet-labels'; });
+  var shouldShow = !!(pLayer && pLayer.visible) && !!(plLayer && plLayer.visible);
+  (sceneObjects['planets'] || []).forEach(function(p) {
+    if (p && p._label) {
+      p._label.style.display = shouldShow ? 'block' : 'none';
+      p._label.style.visibility = shouldShow ? 'visible' : 'hidden';
+    }
+    if (p && typeof p._showLabel !== 'undefined') {
+      p._showLabel = shouldShow;
+    }
+  });
 }
 
 // Unified show/hide for any layer's array of objects. Handles three flavors:
