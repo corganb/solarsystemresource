@@ -597,7 +597,12 @@ function initSolarSystem() {
   var container = document.getElementById('main-container');
 
   var viz = new Spacekit.Simulation(container, {
-    basePath: 'https://typpo.github.io/spacekit',
+    // NOTE: the extra /src segment is deliberate. spacekit.js internally does
+    // replace("{{assets}}", basePath + "/assets"), so to reach the real texture
+    // paths at typpo.github.io/spacekit/src/assets/... we have to include /src
+    // in the basePath. Without it every sprite texture 404s and planets render
+    // as invisible points even though their orbit ellipses still draw fine.
+    basePath: 'https://typpo.github.io/spacekit/src',
     jdPerSecond: 10,
     camera: {
       initialPosition: [-3.2, -3.2, 2.4],
