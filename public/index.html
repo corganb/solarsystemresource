@@ -769,12 +769,73 @@ function initSolarSystem() {
     return out;
   };
 
-  // ── LAYER BUILDER: moons (v0.2 note) ──
-  // Per-planet moon ephemerides require custom per-body code; deferring to v0.3.
-  // Keeping the layer visible in catalog so users know what's coming.
+  // ── LAYER BUILDER: major moons ──
+  // Uses Spacekit.NaturalSatellites built-in dataset (209 moons with real
+  // Keplerian elements and per-planet GM). We filter to the well-known
+  // "major" moons by name to keep the scene readable, and call
+  // moon.orbitAround(parent) so each moon's position is computed in the
+  // parent planet's moving frame. Requires Planets layer to be on so we
+  // have parent references.
+  var MAJOR_MOONS_BY_PLANET = {
+    earth:   ['Moon'],
+    mars:    ['Phobos', 'Deimos'],
+    jupiter: ['Io', 'Europa', 'Ganymede', 'Callisto'],
+    saturn:  ['Mimas', 'Enceladus', 'Tethys', 'Dione', 'Rhea', 'Titan', 'Iapetus'],
+    uranus:  ['Miranda', 'Ariel', 'Umbriel', 'Titania', 'Oberon'],
+    neptune: ['Triton'],
+    pluto:   ['Charon']
+  };
+
   layerBuilders['moons'] = function() {
-    showToast('Major moons rendering arrives in v0.3 (per-planet ephemerides)');
-    return [];
+    var out = [];
+    if (!sceneObjects['planets'] || sceneObjects['planets'].length === 0) {
+      showToast('Enable Planets layer first, then toggle Major Moons');
+      return out;
+    }
+    var parents = {};
+    sceneObjects['planets'].forEach(function(p) {
+      try { parents[p.getId()] = p; } catch(_) {}
+    });
+
+    var sats;
+    try { sats = new Spacekit.NaturalSatellites(viz); }
+    catch(e) { console.warn('[SSR] NaturalSatellites unavailable:', e); showToast('Moons dataset unavailable'); return out; }
+
+    sats.load().then(function() {
+      Object.keys(MAJOR_MOONS_BY_PLANET).forEach(function(pkey) {
+        var parent = parents[pkey];
+        if (!parent) return;
+        var satList = sats.getSatellitesForPlanet(pkey);
+        if (!satList) return;
+        var wanted = MAJOR_MOONS_BY_PLANET[pkey];
+        satList.forEach(function(s) {
+          if (wanted.indexOf(s.name) < 0) return;
+          try {
+            var moon = viz.createObject('moon-' + pkey + '-' + s.name, {
+              ephem: s.ephem,
+              textureUrl: SMALL_SPRITE,
+              theme: { color: 0xc8c8c0 },
+              labelText: s.name,
+              hideOrbit: true,
+              scale: [0.4, 0.4, 0.4]
+            });
+            moon.orbitAround(parent);
+            out.push(moon);
+          } catch(e) { console.warn('[SSR] moon', s.name, e); }
+        });
+      });
+      // Swap into sceneObjects in place so the existing array reference stays valid
+      var arr = sceneObjects['moons'];
+      if (arr) {
+        arr.length = 0;
+        for (var i = 0; i < out.length; i++) arr.push(out[i]);
+      }
+      showToast(out.length + ' major moons loaded (labels appear when zoomed in)');
+    }).catch(function(e) {
+      console.warn('[SSR] NaturalSatellites load failed:', e);
+      showToast('Moons dataset failed to load');
+    });
+    return out;
   };
 
   // ── LAYER BUILDER: active spacecraft (JPL Horizons integration in v0.3) ──
@@ -799,22 +860,41 @@ function initSolarSystem() {
     return wrap ? [wrap] : [];
   };
 
-  // ── LAYER BUILDER: comets (procedural, eccentric scatter) ──
-  // Simulated by scattering points across 2-30 AU with elongated radial pattern.
+  // ── LAYER BUILDER: comets (named comets with real Keplerian elements) ──
+  // Each comet is a proper SpaceObject so it gets a visible orbit trace.
+  // Elements from JPL SSD at or near J2000 epoch.
+  var NAMED_COMETS = [
+    { id: '1p-halley',   label: '1P/Halley',
+      a: 17.834144, e: 0.9671429, i: 162.2625,  om: 58.42008, w: 111.33249, ma: 38.384, color: 0x88ddff },
+    { id: '2p-encke',    label: '2P/Encke',
+      a: 2.21516,   e: 0.8483,    i: 11.7812,   om: 334.5685, w: 186.5437,  ma: 100.0,  color: 0xaaeecc },
+    { id: '67p-cg',      label: '67P/Churyumov-Gerasimenko',
+      a: 3.462854,  e: 0.640618,  i: 7.0464,    om: 50.1459,  w: 12.7803,   ma: 280.0,  color: 0xcceeff },
+    { id: '103p-hartley',label: '103P/Hartley 2',
+      a: 3.47,      e: 0.6938,    i: 13.623,    om: 219.75,   w: 181.20,    ma: 150.0,  color: 0x99ccff },
+    { id: '9p-tempel',   label: '9P/Tempel 1',
+      a: 3.1423,    e: 0.5172,    i: 10.5267,   om: 68.9378,  w: 179.212,   ma: 200.0,  color: 0xbbddee }
+  ];
   layerBuilders['comets'] = function() {
-    var pts = [];
-    for (var i = 0; i < 250; i++) {
-      var r = rand(2, 30);
-      var theta = rand(0, Math.PI * 2);
-      // Spread out of ecliptic plane since comets have wide inclinations
-      var z = (Math.random() - 0.5) * Math.min(r * 0.4, 8);
-      pts.push(ringPoint(r, theta, z));
+    var out = [];
+    for (var i = 0; i < NAMED_COMETS.length; i++) {
+      var c = NAMED_COMETS[i];
+      try {
+        var eph = new Spacekit.Ephem({
+          epoch: 2451545.0,
+          a: c.a, e: c.e, i: c.i, om: c.om, w: c.w, ma: c.ma
+        }, 'deg');
+        var obj = viz.createObject(c.id, {
+          ephem: eph,
+          textureUrl: FUZZY_SPRITE,
+          theme: { color: c.color },
+          labelText: c.label,
+          scale: [0.8, 0.8, 0.8]
+        });
+        out.push(obj);
+      } catch(e) { console.warn('[SSR] comet', c.id, e); }
     }
-    try {
-      var sp = new Spacekit.StaticParticles('comets', pts, { defaultColor: '#88ddff', size: 1.6 }, viz);
-      var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
-      return mesh ? [makeThreeWrapper(mesh)] : [];
-    } catch(e) { console.warn('[SSR] comets:', e); return []; }
+    return out;
   };
 
   // ── LAYER BUILDER: Trojan asteroids (Jupiter L4 + L5 clusters) ──
@@ -1021,30 +1101,48 @@ function toggleLayer(layerId) {
         sceneObjects[layerId] = layerBuilders[layerId]() || [];
       }
     } else {
-      // Show existing objects
-      sceneObjects[layerId].forEach(function(obj) {
-        try {
-          var three = obj.getThreeObject && obj.getThreeObject();
-          if (three) three.visible = true;
-          var orbit = obj.getOrbit && obj.getOrbit();
-          if (orbit && orbit.setVisibility) orbit.setVisibility(true);
-        } catch(e) { /* ignore */ }
-      });
+      setLayerVisibility(sceneObjects[layerId], true);
     }
   } else {
-    // Hide existing objects
-    (sceneObjects[layerId] || []).forEach(function(obj) {
-      try {
-        var three = obj.getThreeObject && obj.getThreeObject();
-        if (three) three.visible = false;
-        var orbit = obj.getOrbit && obj.getOrbit();
-        if (orbit && orbit.setVisibility) orbit.setVisibility(false);
-      } catch(e) { /* ignore */ }
-    });
+    setLayerVisibility(sceneObjects[layerId] || [], false);
   }
 
   renderSidebar();
   updateStatusBar();
+}
+
+// Unified show/hide for any layer's array of objects. Handles three flavors:
+//   1. Spacekit SpaceObject (get3jsObjects() returns [sprite, orbitPath, eclipticLines],
+//      setLabelVisibility() controls the DOM label, getOrbit() controls the orbit line)
+//   2. Wrapped raw Three.js mesh via makeThreeWrapper() (has _threeObj)
+//   3. Anything else: silently skip
+// The critical bug this fixes: spacekit exposes get3jsObjects() (plural) not getThreeObject(),
+// so the earlier single-object approach missed sprites, orbit lines, ecliptic lines, AND
+// did not hide the HTML label element. That made toggle-off feel partially broken.
+function setLayerVisibility(objects, visible) {
+  (objects || []).forEach(function(obj) {
+    if (!obj) return;
+    try {
+      // Spacekit SpaceObject path
+      if (typeof obj.get3jsObjects === 'function') {
+        var arr = obj.get3jsObjects() || [];
+        for (var i = 0; i < arr.length; i++) {
+          if (arr[i]) arr[i].visible = visible;
+        }
+      }
+      // Orbit line (redundant with get3jsObjects for SpaceObjects but covers edge cases)
+      if (typeof obj.getOrbit === 'function') {
+        var orb = obj.getOrbit();
+        if (orb && typeof orb.setVisibility === 'function') orb.setVisibility(visible);
+      }
+      // DOM label
+      if (typeof obj.setLabelVisibility === 'function') {
+        try { obj.setLabelVisibility(visible); } catch(_) {}
+      }
+      // Raw Three.js wrapper
+      if (obj._threeObj) obj._threeObj.visible = visible;
+    } catch(e) { /* ignore per-object failures */ }
+  });
 }
 
 // ═══ SIDEBAR RENDER ═══
