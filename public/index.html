@@ -668,6 +668,16 @@ function initSolarSystem() {
     };
   }
 
+  // Tag a spacekit SpaceObject's label with a data attribute so we can
+  // find and nuke all labels for a given layer via querySelectorAll as
+  // a last-resort hide fallback. Safe to call even if _label doesn't
+  // exist yet (does nothing). Call this right after viz.createObject.
+  function tagLabel(obj, layerId) {
+    if (obj && obj._label && obj._label.setAttribute) {
+      obj._label.setAttribute('data-ssr-layer', layerId);
+    }
+  }
+
   // Random in [a,b)
   function rand(a, b) { return a + Math.random() * (b - a); }
 
@@ -763,7 +773,9 @@ function initSolarSystem() {
             labelText: d.label
           };
         }
-        out.push(viz.createObject(d.id, opts));
+        var dobj = viz.createObject(d.id, opts);
+        tagLabel(dobj, 'dwarfs');
+        out.push(dobj);
       } catch(e) { console.warn('[SSR] dwarf', d.id, e); }
     }
     return out;
@@ -820,6 +832,7 @@ function initSolarSystem() {
               scale: [0.4, 0.4, 0.4]
             });
             moon.orbitAround(parent);
+            tagLabel(moon, 'moons');
             out.push(moon);
           } catch(e) { console.warn('[SSR] moon', s.name, e); }
         });
@@ -896,6 +909,7 @@ function initSolarSystem() {
           labelText: c.label,
           scale: [0.8, 0.8, 0.8]
         });
+        tagLabel(obj, 'comets');
         out.push(obj);
       } catch(e) { console.warn('[SSR] comet', c.id, e); }
     }
@@ -991,6 +1005,7 @@ function initSolarSystem() {
           labelText: p.label,
           hideOrbit: true
         });
+        tagLabel(obj, 'lagrange');
         out.push(obj);
       } catch(e) { console.warn('[SSR] Lagrange', p.id, e); }
     }
@@ -1061,6 +1076,9 @@ function loadHistoricalMissions() {
             labelText: m.name,
             scale: [0.5, 0.5, 0.5]
           });
+          if (obj && obj._label && obj._label.setAttribute) {
+            obj._label.setAttribute('data-ssr-layer', 'historical-missions');
+          }
           missionObjects.push(obj);
         } catch(e) { console.warn('[SSR] mission', m.id, e); }
       });
@@ -1111,10 +1129,10 @@ function toggleLayer(layerId) {
         sceneObjects[layerId] = layerBuilders[layerId]() || [];
       }
     } else {
-      setLayerVisibility(sceneObjects[layerId], true);
+      setLayerVisibility(sceneObjects[layerId], true, layerId);
     }
   } else {
-    setLayerVisibility(sceneObjects[layerId] || [], false);
+    setLayerVisibility(sceneObjects[layerId] || [], false, layerId);
   }
 
   renderSidebar();
@@ -1127,11 +1145,14 @@ function toggleLayer(layerId) {
 //   2. Wrapped raw Three.js mesh via makeThreeWrapper() (has _threeObj)
 //   3. Anything else: silently skip
 //
-// Label hiding is done aggressively and defensively:
-//   - Direct _label.style.display writes (bypasses setLabelVisibility's throw-if-no-label guard)
+// Label hiding is defensive and multi-layered:
+//   - Direct _label.style.display writes on each tracked object
 //   - _showLabel flag flipped so update() loop doesn't fight us on subsequent frames
-//   - visibility style also set as a belt-and-suspenders measure
-function setLayerVisibility(objects, visible) {
+//   - **Fallback DOM sweep**: querySelectorAll('[data-ssr-layer="<id>"]') and
+//     force display:none on any label tagged for this layer. This catches
+//     edge cases where the tracked object array is stale, empty, or missing
+//     refs (e.g. async race in moon/mission builders, duplicate toggles).
+function setLayerVisibility(objects, visible, layerId) {
   (objects || []).forEach(function(obj) {
     if (!obj) return;
     try {
@@ -1160,6 +1181,18 @@ function setLayerVisibility(objects, visible) {
       if (obj._threeObj) obj._threeObj.visible = visible;
     } catch(e) { /* ignore per-object failures */ }
   });
+  // Fallback DOM sweep: find all labels tagged with this layer id and force
+  // their display state. Catches stale-reference cases where the tracked
+  // object array is missing some labels that are still live in the DOM.
+  if (layerId) {
+    try {
+      var nodes = document.querySelectorAll('[data-ssr-layer="' + layerId + '"]');
+      for (var j = 0; j < nodes.length; j++) {
+        nodes[j].style.display = visible ? 'block' : 'none';
+        nodes[j].style.visibility = visible ? 'visible' : 'hidden';
+      }
+    } catch(e) { /* ignore */ }
+  }
 }
 
 // ═══ SIDEBAR RENDER ═══
