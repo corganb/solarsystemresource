@@ -647,48 +647,270 @@ function initSolarSystem() {
   // getOrbit().setVisibility() per the spacekit API.
   layerBuilders['orbits'] = function() { return []; /* managed via planets */ };
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // LAYER BUILDERS (v0.2)
+  //
+  // Toggleability contract: every object returned by a builder must expose
+  // a .getThreeObject() that returns a Three.js Object3D with a .visible
+  // property. spacekit SpaceObjects satisfy this for sprite-rendered bodies.
+  // For raw Three.js meshes we add via viz.getScene().add(mesh), we wrap
+  // with makeThreeWrapper() so the existing toggleLayer() code Just Works.
+  // ═══════════════════════════════════════════════════════════════════════
+  var THREE = Spacekit.THREE;
+  var SMALL_SPRITE = '{{assets}}/sprites/smallparticle.png';
+  var FUZZY_SPRITE = '{{assets}}/sprites/fuzzyparticle.png';
+
+  function makeThreeWrapper(obj3d) {
+    return {
+      _threeObj: obj3d,
+      getThreeObject: function() { return obj3d; },
+      getOrbit: function() { return null; }
+    };
+  }
+
+  // Random in [a,b)
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  // Heliocentric ecliptic position from ring params.
+  // r: radius in AU, theta: longitude in radians, z: vertical offset in AU.
+  function ringPoint(r, theta, z) {
+    return [r * Math.cos(theta), r * Math.sin(theta), z || 0];
+  }
+
+  // Add a procedural point cloud via Spacekit.StaticParticles.
+  function buildRing(id, count, rMin, rMax, zJitter, color, size) {
+    var pts = [];
+    for (var i = 0; i < count; i++) {
+      var r = rand(rMin, rMax);
+      var theta = rand(0, Math.PI * 2);
+      var z = (Math.random() - 0.5) * zJitter;
+      pts.push(ringPoint(r, theta, z));
+    }
+    try {
+      var sp = new Spacekit.StaticParticles(id, pts, {
+        defaultColor: color,
+        size: size
+      }, viz);
+      // StaticParticles exposes get3jsObjects() returning [pointsMesh]
+      var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
+      return mesh ? makeThreeWrapper(mesh) : null;
+    } catch(e) {
+      console.warn('[SSR] buildRing failed for', id, e);
+      return null;
+    }
+  }
+
+  // Add a cluster of points around a co-orbital Lagrange point of a host body.
+  // host: object with {a, ma_deg} describing circular-ish orbit (Jupiter for Trojans).
+  // dmaDeg: +60 for L4, -60 for L5. Returns an array of wrappers.
+  function buildCoOrbitalCluster(id, count, a, maDeg, dmaDeg, angularSpread, radialSpread, color, size) {
+    var pts = [];
+    for (var i = 0; i < count; i++) {
+      var angleDeg = maDeg + dmaDeg + rand(-angularSpread, angularSpread);
+      var r = a + rand(-radialSpread, radialSpread);
+      var z = (Math.random() - 0.5) * 0.3;
+      pts.push(ringPoint(r, angleDeg * Math.PI / 180, z));
+    }
+    try {
+      var sp = new Spacekit.StaticParticles(id, pts, { defaultColor: color, size: size }, viz);
+      var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
+      return mesh ? makeThreeWrapper(mesh) : null;
+    } catch(e) {
+      console.warn('[SSR] cluster failed for', id, e);
+      return null;
+    }
+  }
+
+  // Earth J2000 Keplerian elements in degrees (for Lagrange point derivation)
+  var EARTH_J2000 = {
+    epoch: 2451545.0,
+    a: 1.00000261, e: 0.01671123,
+    i: 0.00001531,
+    om: -11.26064, w: 102.94719,
+    ma: 100.46435
+  };
+  // Jupiter J2000 (for Trojans)
+  var JUPITER_J2000 = {
+    a: 5.20288700, e: 0.04838624,
+    i: 1.30439695,
+    om: 100.47390909, w: 273.86740, ma: 20.02009
+  };
+
   // ── LAYER BUILDER: dwarf planets ──
+  // Pluto preset exists in spacekit; Ceres/Eris/Haumea/Makemake need custom ephem.
+  // Keplerian elements from JPL SSD small body database at J2000 epoch (JD 2451545.0).
   layerBuilders['dwarfs'] = function() {
     var out = [];
-    // Pluto preset exists; Ceres, Eris, Haumea, Makemake may not. Stub with labels.
     var dwarfs = [
-      { id: 'pluto', preset: 'PLUTO', fallback: null },
-      { id: 'ceres', preset: 'CERES', fallback: null },
-      { id: 'eris', preset: 'ERIS', fallback: null }
+      { id: 'pluto', preset: 'PLUTO', label: 'Pluto' },
+      { id: 'ceres',    label: 'Ceres',    ephem: { a: 2.7691652, e: 0.0760091, i: 10.593,  om: 80.3055,  w: 73.597,  ma: 77.372 } },
+      { id: 'eris',     label: 'Eris',     ephem: { a: 67.864,   e: 0.4338,    i: 44.04,   om: 36.11,    w: 151.14,  ma: 204.16 } },
+      { id: 'haumea',   label: 'Haumea',   ephem: { a: 43.34,    e: 0.191,     i: 28.19,   om: 121.79,   w: 239.184, ma: 209.07 } },
+      { id: 'makemake', label: 'Makemake', ephem: { a: 45.79,    e: 0.159,     i: 29.00,   om: 79.36,    w: 298.41,  ma: 165.51 } }
     ];
     for (var i = 0; i < dwarfs.length; i++) {
-      var preset = Spacekit.SpaceObjectPresets && Spacekit.SpaceObjectPresets[dwarfs[i].preset];
-      if (preset) {
-        try { out.push(viz.createObject(dwarfs[i].id, preset)); }
-        catch(e) { console.warn('[SSR] dwarf', dwarfs[i].id, e); }
-      }
+      var d = dwarfs[i];
+      try {
+        var opts;
+        if (d.preset && Spacekit.SpaceObjectPresets && Spacekit.SpaceObjectPresets[d.preset]) {
+          opts = Spacekit.SpaceObjectPresets[d.preset];
+        } else {
+          var eph = new Spacekit.Ephem(Object.assign({ epoch: 2451545.0 }, d.ephem), 'deg');
+          opts = {
+            ephem: eph,
+            textureUrl: SMALL_SPRITE,
+            theme: { color: 0xb0a090 },
+            labelText: d.label
+          };
+        }
+        out.push(viz.createObject(d.id, opts));
+      } catch(e) { console.warn('[SSR] dwarf', d.id, e); }
     }
     return out;
   };
 
-  // ── LAYER BUILDER: moons (stub - labels only in v0.1) ──
-  layerBuilders['moons'] = function() { return []; };
-
-  // ── LAYER BUILDER: active spacecraft (stub - static positions v0.1) ──
-  layerBuilders['active-spacecraft'] = function() { return []; };
-
-  // ── LAYER BUILDER: historical missions (loaded async) ──
-  layerBuilders['historical-missions'] = function() { loadHistoricalMissions(); return []; };
-
-  // ── LAYER BUILDER: asteroid belt ──
-  // Spacekit has some asteroid data built-in but requires network fetches.
-  // For v0.1, stub and show a toast explaining.
-  layerBuilders['asteroid-belt'] = function() {
-    showToast('Asteroid belt coming in v0.2 - JPL SBDB integration');
+  // ── LAYER BUILDER: moons (v0.2 note) ──
+  // Per-planet moon ephemerides require custom per-body code; deferring to v0.3.
+  // Keeping the layer visible in catalog so users know what's coming.
+  layerBuilders['moons'] = function() {
+    showToast('Major moons rendering arrives in v0.3 (per-planet ephemerides)');
     return [];
   };
-  layerBuilders['neos'] = function() { showToast('NEO catalog coming in v0.2'); return []; };
-  layerBuilders['comets'] = function() { showToast('Comet catalog coming in v0.2'); return []; };
-  layerBuilders['trojans'] = function() { showToast('Trojan asteroids coming in v0.2'); return []; };
-  layerBuilders['kuiper'] = function() { showToast('Kuiper belt visualization coming in v0.2'); return []; };
-  layerBuilders['oort'] = function() { showToast('Oort cloud visualization coming in v0.2'); return []; };
-  layerBuilders['heliosphere'] = function() { showToast('Heliosphere model coming in v0.2'); return []; };
-  layerBuilders['lagrange'] = function() { showToast('Lagrange points coming in v0.2'); return []; };
+
+  // ── LAYER BUILDER: active spacecraft (JPL Horizons integration in v0.3) ──
+  layerBuilders['active-spacecraft'] = function() {
+    showToast('Active spacecraft trajectories arrive in v0.3 (JPL Horizons)');
+    return [];
+  };
+
+  // ── LAYER BUILDER: historical missions (static markers from JSON) ──
+  layerBuilders['historical-missions'] = function() { return loadHistoricalMissions(); };
+
+  // ── LAYER BUILDER: asteroid belt (procedural) ──
+  // Main belt distribution: 2.1-3.3 AU. 2000 points is enough to read as a ring.
+  layerBuilders['asteroid-belt'] = function() {
+    var wrap = buildRing('asteroid-belt', 2000, 2.1, 3.3, 0.2, '#a88868', 1.2);
+    return wrap ? [wrap] : [];
+  };
+
+  // ── LAYER BUILDER: NEOs (procedural, near 1 AU) ──
+  layerBuilders['neos'] = function() {
+    var wrap = buildRing('neos', 400, 0.8, 1.5, 0.15, '#ff6666', 1.4);
+    return wrap ? [wrap] : [];
+  };
+
+  // ── LAYER BUILDER: comets (procedural, eccentric scatter) ──
+  // Simulated by scattering points across 2-30 AU with elongated radial pattern.
+  layerBuilders['comets'] = function() {
+    var pts = [];
+    for (var i = 0; i < 250; i++) {
+      var r = rand(2, 30);
+      var theta = rand(0, Math.PI * 2);
+      // Spread out of ecliptic plane since comets have wide inclinations
+      var z = (Math.random() - 0.5) * Math.min(r * 0.4, 8);
+      pts.push(ringPoint(r, theta, z));
+    }
+    try {
+      var sp = new Spacekit.StaticParticles('comets', pts, { defaultColor: '#88ddff', size: 1.6 }, viz);
+      var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
+      return mesh ? [makeThreeWrapper(mesh)] : [];
+    } catch(e) { console.warn('[SSR] comets:', e); return []; }
+  };
+
+  // ── LAYER BUILDER: Trojan asteroids (Jupiter L4 + L5 clusters) ──
+  layerBuilders['trojans'] = function() {
+    var out = [];
+    var a = JUPITER_J2000.a;
+    var maNow = JUPITER_J2000.ma; // Approximate; we use J2000 anchoring for visual grouping only
+    var l4 = buildCoOrbitalCluster('trojans-l4', 400, a, maNow, 60, 8, 0.35, '#c8a070', 1.3);
+    var l5 = buildCoOrbitalCluster('trojans-l5', 400, a, maNow, -60, 8, 0.35, '#c8a070', 1.3);
+    if (l4) out.push(l4);
+    if (l5) out.push(l5);
+    return out;
+  };
+
+  // ── LAYER BUILDER: Kuiper Belt (procedural, 30-55 AU) ──
+  layerBuilders['kuiper'] = function() {
+    var wrap = buildRing('kuiper', 1500, 30, 55, 2.5, '#9898b8', 1.4);
+    return wrap ? [wrap] : [];
+  };
+
+  // ── LAYER BUILDER: Oort cloud (transparent spherical shell) ──
+  // The real Oort cloud is 2000-100000 AU — far outside the normal scene frustum.
+  // For visibility we render a translucent shell at 80 AU so users can see its
+  // conceptual placement. Toast note clarifies.
+  layerBuilders['oort'] = function() {
+    try {
+      var geo = new THREE.SphereGeometry(80, 48, 24);
+      var mat = new THREE.MeshBasicMaterial({
+        color: 0x6688cc,
+        transparent: true,
+        opacity: 0.08,
+        side: THREE.BackSide,
+        wireframe: true
+      });
+      var mesh = new THREE.Mesh(geo, mat);
+      viz.getScene().add(mesh);
+      showToast('Oort cloud: rendered at 80 AU for visibility (real extent ~2,000-100,000 AU)');
+      return [makeThreeWrapper(mesh)];
+    } catch(e) { console.warn('[SSR] oort:', e); return []; }
+  };
+
+  // ── LAYER BUILDER: Heliosphere (termination shock shell at ~100 AU) ──
+  layerBuilders['heliosphere'] = function() {
+    try {
+      var geo = new THREE.SphereGeometry(100, 48, 24);
+      var mat = new THREE.MeshBasicMaterial({
+        color: 0xffa844,
+        transparent: true,
+        opacity: 0.05,
+        side: THREE.BackSide
+      });
+      var mesh = new THREE.Mesh(geo, mat);
+      viz.getScene().add(mesh);
+      return [makeThreeWrapper(mesh)];
+    } catch(e) { console.warn('[SSR] heliosphere:', e); return []; }
+  };
+
+  // ── LAYER BUILDER: Lagrange points (Earth-Sun L1-L5) ──
+  // L4 and L5 are physically correct using Earth's ephem with ma ±60 degrees.
+  // L3 is anti-Earth (ma + 180). L1 and L2 are approximated by slightly offset
+  // semi-major axes (0.99 AU and 1.01 AU); they will drift from the true
+  // saddle-point equilibria over long simulation times but are visually
+  // co-located with Earth at the default view scale.
+  layerBuilders['lagrange'] = function() {
+    var out = [];
+    var L = [
+      { id: 'L1', dA:-0.01, dma:0,   label: 'L1' },
+      { id: 'L2', dA: 0.01, dma:0,   label: 'L2' },
+      { id: 'L3', dA: 0,    dma:180, label: 'L3' },
+      { id: 'L4', dA: 0,    dma:60,  label: 'L4' },
+      { id: 'L5', dA: 0,    dma:-60, label: 'L5' }
+    ];
+    for (var i = 0; i < L.length; i++) {
+      var p = L[i];
+      try {
+        var eph = new Spacekit.Ephem({
+          epoch: EARTH_J2000.epoch,
+          a: EARTH_J2000.a + p.dA,
+          e: EARTH_J2000.e,
+          i: EARTH_J2000.i,
+          om: EARTH_J2000.om,
+          w: EARTH_J2000.w,
+          ma: EARTH_J2000.ma + p.dma
+        }, 'deg');
+        var obj = viz.createObject('lagrange-' + p.id, {
+          ephem: eph,
+          textureUrl: SMALL_SPRITE,
+          theme: { color: 0x88ffff },
+          labelText: p.label,
+          hideOrbit: true
+        });
+        out.push(obj);
+      } catch(e) { console.warn('[SSR] Lagrange', p.id, e); }
+    }
+    return out;
+  };
 
   // Build the initial visible layers
   for (var i = 0; i < S.layers.length; i++) {
@@ -702,20 +924,74 @@ function initSolarSystem() {
 }
 
 // ═══ HISTORICAL MISSIONS LOADER ═══
-// Loads public/historical_missions.json (same schema as the other sites)
+// Loads public/historical_missions.json and places each as a labeled static
+// marker at an approximate heliocentric position. Distances are "visual
+// representative" not real-time ephemeris; for true JPL Horizons integration
+// see active-spacecraft layer (planned v0.3).
 function loadHistoricalMissions() {
-  if (sceneObjects['historical-missions'] && sceneObjects['historical-missions']._loaded) return;
-  sceneObjects['historical-missions'] = sceneObjects['historical-missions'] || [];
-  sceneObjects['historical-missions']._loaded = true;
+  var viz = S.viz;
+  if (!viz) return [];
+
+  // Approximate heliocentric placement by mission type/target.
+  // Values are (radius AU, longitude deg, inclination deg) chosen to spread
+  // markers visually across the scene. Interstellar probes are scaled down
+  // so they stay in the frustum at default zoom.
+  var PLACEMENTS = {
+    'voyager-1':          { r: 30, theta: 35,  z: 5 },
+    'voyager-2':          { r: 28, theta: 210, z: -8 },
+    'pioneer-10':         { r: 27, theta: 100, z: 2 },
+    'pioneer-11':         { r: 25, theta: 160, z: -3 },
+    'galileo':            { r: 5.2, theta: 160, z: 0.1 },
+    'cassini':            { r: 9.5, theta: 250, z: 0.5 },
+    'new-horizons':       { r: 20, theta: 310, z: 1 },
+    'juno':               { r: 5.2, theta: 120, z: 0.2 },
+    'parker-solar-probe': { r: 0.4, theta: 60,  z: 0.1 },
+    'bepicolombo':        { r: 0.6, theta: 200, z: 0.05 },
+    'europa-clipper':     { r: 3.0, theta: 80,  z: 0.1 },
+    'juice':              { r: 3.5, theta: 40,  z: 0.3 },
+    'artemis-2':          { r: 1.0, theta: 100, z: 0.01 }
+  };
+
+  var missionObjects = [];
+  // Mark loaded so toggleLayer rebuild path doesn't double-fetch on retoggle.
+  if (sceneObjects['historical-missions'] && sceneObjects['historical-missions']._loaded) {
+    return sceneObjects['historical-missions'];
+  }
 
   fetch('historical_missions.json')
     .then(function(r) { return r.json(); })
     .then(function(missions) {
       console.log('[SSR] Historical missions loaded:', missions.length);
-      // v0.1: just log. v0.2 will add trajectory rendering at solar system scale.
-      showToast(missions.length + ' historical missions loaded (trajectory rendering in v0.2)');
+      missions.forEach(function(m) {
+        var place = PLACEMENTS[m.id];
+        if (!place) return;
+        var lon = place.theta * Math.PI / 180;
+        var pos = [place.r * Math.cos(lon), place.r * Math.sin(lon), place.z || 0];
+        var color = parseInt((m.color || '#b8bccc').replace('#', ''), 16);
+        try {
+          var obj = viz.createObject('mission-' + m.id, {
+            position: pos,
+            textureUrl: '{{assets}}/sprites/smallparticle.png',
+            theme: { color: color },
+            labelText: m.name,
+            scale: [0.5, 0.5, 0.5]
+          });
+          missionObjects.push(obj);
+        } catch(e) { console.warn('[SSR] mission', m.id, e); }
+      });
+      // Swap the live array in place so toggleLayer's hide loop finds them.
+      sceneObjects['historical-missions'].length = 0;
+      for (var i = 0; i < missionObjects.length; i++) {
+        sceneObjects['historical-missions'].push(missionObjects[i]);
+      }
+      sceneObjects['historical-missions']._loaded = true;
+      showToast(missionObjects.length + ' historical missions rendered (positions approximate)');
     })
     .catch(function(e) { console.warn('[Historical Missions] Failed to load:', e); });
+
+  // Return the (initially empty) array immediately; it gets populated when fetch resolves.
+  sceneObjects['historical-missions'] = missionObjects;
+  return missionObjects;
 }
 
 // ═══ LAYER TOGGLE ═══
