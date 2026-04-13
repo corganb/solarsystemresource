@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ | SolarSystemResource | Resource Systems by Corgan Studio</title>
+<meta name="description" content="Frequently asked questions about SolarSystemResource, a heliocentric solar system spatial intelligence platform by Corgan Studio. Planets, spacecraft, comets, deep space missions, and real-time Deep Space Network telemetry.">
+<meta name="keywords" content="SolarSystemResource, Resource Systems, Corgan Studio, solar system, heliocentric, planets, spacecraft tracking, Voyager, New Horizons, Parker Solar Probe, Juno, Europa Clipper, JUICE, JPL, ephemeris, Deep Space Network, Jason Corgan Brown, multi-planetary intelligence platform">
+<meta property="og:title" content="FAQ | SolarSystemResource by Corgan Studio">
+<meta property="og:description" content="Heliocentric solar system spatial intelligence platform with planets, spacecraft, comets, and Deep Space Network integration.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://solarsystemresource.com/faq">
+<meta property="og:site_name" content="SolarSystemResource">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@resource_sys">
+<meta name="twitter:title" content="FAQ | SolarSystemResource">
+<meta name="twitter:description" content="Heliocentric solar system spatial intelligence platform by Corgan Studio.">
+<link rel="canonical" href="https://solarsystemresource.com/faq">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type":"Question","name":"What is SolarSystemResource?","acceptedAnswer":{"@type":"Answer","text":"SolarSystemResource is a heliocentric spatial intelligence platform showing the Sun, eight planets, dwarf planets, active spacecraft, comets, asteroids, and deep space missions in a unified 3D view at solar system scale. It is the fourth platform in the Resource Systems suite developed by Corgan Studio, alongside TerraResource, MoonResource, and MarsResource."}},
+    {"@type":"Question","name":"What is Resource Systems?","acceptedAnswer":{"@type":"Answer","text":"Resource Systems is the first multi-planetary spatial intelligence platform, bringing together Earth, Moon, Mars, and the solar system at large in a unified suite with live data, real-time mission tracking, and cross-body analytics. Developed by Corgan Studio, the suite includes TerraResource (Earth), MoonResource (Moon), MarsResource (Mars), and SolarSystemResource (heliocentric). Resource Systems launched in 2025."}},
+    {"@type":"Question","name":"How is SolarSystemResource different from other solar system viewers?","acceptedAnswer":{"@type":"Answer","text":"SolarSystemResource is part of an integrated Resource Systems suite with shared authentication, tier system, and cross-platform mission tracking. Unlike standalone solar system visualizations, users can follow a single spacecraft across Earth, Moon, Mars, and heliocentric perspectives using real NASA ephemeris data. The platform is purpose-built for solar-system-scale visualization using the spacekit.js rendering engine, which handles 1 to 40 AU scales natively where traditional Earth-centric 3D engines struggle."}},
+    {"@type":"Question","name":"What rendering engine does it use?","acceptedAnswer":{"@type":"Answer","text":"SolarSystemResource uses spacekit.js, an open-source Three.js-based rendering engine purpose-built for solar-system-scale visualization. spacekit.js was chosen over CesiumJS (used by the other three Resource Systems platforms) because Cesium is optimized for Earth-surface and planet-surface views and does not handle heliocentric 1 to 40 AU scales well. Planet positions are computed from JPL Keplerian orbital elements at the J2000 reference frame."}},
+    {"@type":"Question","name":"Are the planet positions scientifically accurate?","acceptedAnswer":{"@type":"Answer","text":"Yes for orbital paths and relative distances. Planets are rendered from JPL SpaceObjectPresets using Keplerian orbital elements (semi-major axis, eccentricity, inclination, epoch) that match the J2000 reference frame. Planet body sizes, however, are not rendered to scale relative to their orbits. If they were, Earth would be smaller than a single pixel at a zoom where its orbit is visible. Like every solar system visualization, SolarSystemResource uses constant-pixel-size billboards so bodies remain visible regardless of camera distance."}},
+    {"@type":"Question","name":"What is the Deep Space Network feed?","acceptedAnswer":{"@type":"Answer","text":"SolarSystemResource displays live data from NASA's Deep Space Network (DSN), showing which antennas at Goldstone (California), Madrid (Spain), and Canberra (Australia) are actively communicating with deep space spacecraft. The feed updates continuously with dish status, target identification, signal strength, and round-trip light time. The same feed is shared across all four Resource Systems platforms via a shared Supabase edge function."}},
+    {"@type":"Question","name":"What data sources do you use?","acceptedAnswer":{"@type":"Answer","text":"NASA (Deep Space Network, mission ephemeris, JPL Horizons orbital data, NASA Tycho star catalog), JPL Small Body Database (asteroid, comet, and minor planet elements), ESA (deep space mission data), and the open-source spacekit.js rendering engine. Orbital mechanics are computed locally using Keplerian propagation from published elements rather than continuously polling external services."}},
+    {"@type":"Question","name":"Who created SolarSystemResource?","acceptedAnswer":{"@type":"Answer","text":"Jason Corgan Brown, founder of Corgan Studio. Corgan Studio is a research and design studio focused on spatial intelligence, worldbuilding, and large-scale data visualization systems. Jason's work spans spatial design for NEOM, Amazon Studios, and the Obama Presidential Center, alongside creative leadership on cinematic franchises including Star Wars, Lord of the Rings, and Tron. SolarSystemResource launched as the fourth platform in the Resource Systems family in 2026."}}
+  ]
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: rgba(77,166,255,0.2) transparent; }
+  *::-webkit-scrollbar { width: 4px; }
+  *::-webkit-scrollbar-thumb { background: rgba(77,166,255,0.2); border-radius: 2px; }
+  body { background: #0a0c10; color: rgba(245,248,255,0.95); font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace; line-height: 1.7; }
+  .container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
+  .back { display: inline-block; color: #4da6ff; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; margin-bottom: 40px; opacity: 0.7; }
+  .back:hover { opacity: 1; }
+  h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 8px; color: #4da6ff; }
+  .subtitle { font-size: 12px; color: rgba(160,172,200,0.65); margin-bottom: 8px; letter-spacing: 0.04em; }
+  .updated { font-size: 11px; color: rgba(130,145,175,0.50); margin-bottom: 48px; }
+  .faq-item { margin-bottom: 32px; border-left: 2px solid rgba(255,255,255,0.06); padding-left: 20px; }
+  .faq-item:hover { border-left-color: rgba(77,166,255,0.20); }
+  .faq-q { font-size: 14px; font-weight: 600; color: rgba(200,210,230,0.85); margin-bottom: 8px; }
+  .faq-a { font-size: 13px; color: rgba(160,172,200,0.65); line-height: 1.8; }
+  .faq-a strong { color: #4da6ff; font-weight: 500; }
+  .sources { margin-top: 4px; padding-left: 0; }
+  .sources li { list-style: none; font-size: 12px; color: rgba(160,172,200,0.50); line-height: 1.6; }
+  .sources li strong { color: rgba(200,210,230,0.7); }
+  .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: rgba(130,145,175,0.50); display: flex; gap: 16px; flex-wrap: wrap; }
+  .footer a { color: rgba(160,172,200,0.65); text-decoration: none; }
+  .footer a:hover { color: #4da6ff; }
+  @media (max-width: 600px) { .container { padding: 32px 16px; } h1 { font-size: 22px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">&larr; Back to SolarSystemResource</a>
+  <h1>Frequently Asked Questions</h1>
+  <div class="subtitle">SolarSystemResource &middot; a Corgan Studio spatial intelligence platform</div>
+  <div class="updated">Last updated April 13, 2026</div>
+
+  <div class="faq-item">
+    <div class="faq-q">What is SolarSystemResource?</div>
+    <div class="faq-a">SolarSystemResource is a <strong>heliocentric spatial intelligence platform</strong> showing the Sun, eight planets, dwarf planets, active spacecraft, comets, asteroids, and deep space missions in a unified 3D view at solar system scale. It is the fourth platform in the Resource Systems suite, developed by Corgan Studio alongside TerraResource (Earth), MoonResource (Moon), and MarsResource (Mars).</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What is Resource Systems?</div>
+    <div class="faq-a">Resource Systems is the <strong>first multi-planetary spatial intelligence platform</strong>, bringing together Earth, Moon, Mars, and the solar system at large in a unified suite with live data, real-time mission tracking, and cross-body analytics. Developed by Corgan Studio, the suite includes TerraResource (terraresource.net), MoonResource (moonresource.com), MarsResource (marsresource.net), and SolarSystemResource (solarsystemresource.com). Resource Systems launched in 2025.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How is SolarSystemResource different from other solar system viewers?</div>
+    <div class="faq-a">SolarSystemResource is part of an <strong>integrated Resource Systems suite</strong> with shared authentication, a shared tier system, and cross-platform mission tracking. Unlike standalone solar system visualizations, users can follow a single spacecraft across Earth, Moon, Mars, and heliocentric perspectives using real NASA ephemeris data. The platform is purpose-built for solar-system-scale visualization, handling 1 to 40 AU scales natively where traditional Earth-centric 3D engines struggle.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What rendering engine does it use?</div>
+    <div class="faq-a">SolarSystemResource uses <strong>spacekit.js</strong>, an open-source Three.js-based rendering engine purpose-built for solar-system-scale visualization. spacekit.js was chosen over CesiumJS (used by the other three Resource Systems platforms) because Cesium is optimized for Earth-surface and planet-surface views and does not handle heliocentric 1 to 40 AU scales well. Planet positions are computed from JPL Keplerian orbital elements at the J2000 reference frame.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Are the planet positions scientifically accurate?</div>
+    <div class="faq-a"><strong>Yes for orbital paths and relative distances.</strong> Planets are rendered from JPL orbital elements (semi-major axis, eccentricity, inclination, epoch) that match the J2000 reference frame. <strong>Planet body sizes, however, are not rendered to scale relative to their orbits.</strong> If they were, Earth would be smaller than a single pixel at a zoom where its orbit is visible. Like every solar system visualization, SolarSystemResource uses constant-pixel-size billboards so bodies remain visible regardless of camera distance. This is a deliberate visualization choice, not an error.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What is the Deep Space Network feed?</div>
+    <div class="faq-a">SolarSystemResource displays <strong>live data from NASA's Deep Space Network</strong> (DSN), showing which antennas at Goldstone (California), Madrid (Spain), and Canberra (Australia) are actively communicating with deep space spacecraft. The feed updates continuously with dish status, target identification, signal strength, and round-trip light time. The same feed is shared across all four Resource Systems platforms via a shared Supabase edge function.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What layers are available?</div>
+    <div class="faq-a">Current layers include the <strong>Sun and eight planets with accurate Keplerian orbital paths</strong>, a NASA Tycho starfield skybox, and the Deep Space Network live telemetry panel. Additional layers in active development include dwarf planets, major moons, active spacecraft trajectories (Voyager, Juno, Parker, New Horizons, JUICE, Europa Clipper), historical missions, asteroid belt, near-Earth objects, comets, Trojan asteroids, Kuiper Belt, Oort Cloud, heliosphere, and Earth-Sun Lagrange points L1 through L5. Free accounts can activate up to 3 layers; Researcher tier and above gets unlimited access.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What data sources do you use?</div>
+    <div class="faq-a">All data comes from verified scientific and government sources:
+      <ul class="sources">
+        <li><strong>NASA</strong> &middot; Deep Space Network, mission ephemeris, NASA Tycho star catalog</li>
+        <li><strong>JPL</strong> &middot; SpaceObjectPresets, Small Body Database, Horizons ephemeris</li>
+        <li><strong>ESA</strong> &middot; Deep space mission data</li>
+        <li><strong>spacekit.js</strong> &middot; Open-source Three.js-based solar system rendering engine</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Who created SolarSystemResource?</div>
+    <div class="faq-a"><strong>Jason Corgan Brown</strong>, founder of Corgan Studio. Corgan Studio is a research and design studio focused on spatial intelligence, worldbuilding, and large-scale data visualization systems. Jason's work spans worldbuilding and spatial design for projects including NEOM, Amazon Studios, and the Obama Presidential Center, as well as creative leadership on major cinematic franchises including Star Wars, Lord of the Rings, and Tron. His cross-disciplinary background in systems architecture, large-scale spatial design, and narrative environments directly informs the design and development of SolarSystemResource. Resource Systems launched in 2025; SolarSystemResource launched in 2026.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">What subscription tiers are available?</div>
+    <div class="faq-a"><strong>Free</strong>: 3 active layers and full orbital view. <strong>Researcher</strong> ($149/mo): full layer access including asteroid belt, comets, NEOs, Kuiper Belt, Oort Cloud, and heliosphere. <strong>Team</strong> ($499/mo): collaborative features and API access. <strong>Enterprise</strong> ($2,499/mo): tracking lists, custom data ingestion, and dedicated support. Subscriptions unlock features across all four Resource Systems platforms, not just this one. Cancel anytime with no long-term contracts.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Is the platform available on mobile?</div>
+    <div class="faq-a">Yes. SolarSystemResource is optimized for <strong>desktop and mobile browsers</strong>. The 3D solar system scene performs best on desktop with dedicated graphics hardware, but all core features including layer toggles, DSN feed, and authentication are fully functional on mobile. The sidebar collapses behind a toggle button on screens under 768px wide.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How can I contact you?</div>
+    <div class="faq-a">Email: <strong>contact@corganstudio.com</strong><br>Instagram: <a href="https://instagram.com/resourcesystems" style="color:#4da6ff;text-decoration:none">@resourcesystems</a><br>X: <a href="https://x.com/resource_sys" style="color:#4da6ff;text-decoration:none">@resource_sys</a></div>
+  </div>
+
+  <div class="footer">
+    <span>&copy; 2025-2026 Corgan Studio. All rights reserved.</span>
+    <a href="https://terraresource.net">TerraResource</a>
+    <a href="https://moonresource.com">MoonResource</a>
+    <a href="https://marsresource.net">MarsResource</a>
+    <a href="https://solarsystemresource.com">SolarSystemResource</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="mailto:contact@corganstudio.com">Contact</a>
+  </div>
+</div>
+</body>
+</html>

@@ -48,8 +48,10 @@ RS.BRAND_MARKS = {
   uranus:  '<svg width="24" height="24" viewBox="0 0 24 24"><defs><radialGradient id="ug" cx="35%" cy="35%"><stop offset="0%" stop-color="#90d8e4" stop-opacity="0.6"/><stop offset="100%" stop-color="#1a4a50" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="11" fill="#2a5a60"/><circle cx="12" cy="12" r="11" fill="url(#ug)"/><rect x="5" y="7.5" width="14" height="2.8" rx="1.4" fill="#90d8e4" opacity="0.8"/><rect x="5" y="11" width="14" height="2.8" rx="1.4" fill="#60b0c0" opacity="0.7"/><rect x="5" y="14.5" width="14" height="2.8" rx="1.4" fill="#7ec8d4" opacity="0.55"/></svg>',
   neptune: '<svg width="24" height="24" viewBox="0 0 24 24"><defs><radialGradient id="ng" cx="35%" cy="35%"><stop offset="0%" stop-color="#4060d4" stop-opacity="0.7"/><stop offset="100%" stop-color="#0a1840" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="11" fill="#101a48"/><circle cx="12" cy="12" r="11" fill="url(#ng)"/><rect x="5" y="7.5" width="14" height="2.8" rx="1.4" fill="#4060d4" opacity="0.8"/><rect x="5" y="11" width="14" height="2.8" rx="1.4" fill="#2840a0" opacity="0.7"/><rect x="5" y="14.5" width="14" height="2.8" rx="1.4" fill="#5070e0" opacity="0.55"/></svg>',
   pluto:   '<svg width="24" height="24" viewBox="0 0 24 24"><defs><radialGradient id="pg" cx="35%" cy="35%"><stop offset="0%" stop-color="#a09080" stop-opacity="0.6"/><stop offset="100%" stop-color="#2a2420" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="11" fill="#3a3028"/><circle cx="12" cy="12" r="11" fill="url(#pg)"/><rect x="5" y="7.5" width="14" height="2.8" rx="1.4" fill="#b0a090" opacity="0.75"/><rect x="5" y="11" width="14" height="2.8" rx="1.4" fill="#7a6a58" opacity="0.65"/><rect x="5" y="14.5" width="14" height="2.8" rx="1.4" fill="#a09080" opacity="0.5"/></svg>',
-  solarsystem: '<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="#FFD54F"/><circle cx="12" cy="12" r="7" fill="none" stroke="#4da6ff" stroke-width="0.5" opacity="0.4"/><circle cx="12" cy="12" r="10" fill="none" stroke="#d4b46a" stroke-width="0.5" opacity="0.3"/><circle cx="19" cy="12" r="1.2" fill="#4da6ff"/></svg>',
+  solarsystem: '<svg width="24" height="24" viewBox="0 0 24 24"><defs><radialGradient id="ssg" cx="35%" cy="35%"><stop offset="0%" stop-color="#FFD54F" stop-opacity="0.8"/><stop offset="100%" stop-color="#1a0f28" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="11" fill="#0a0a1a"/><circle cx="12" cy="12" r="11" fill="url(#ssg)"/><rect x="5" y="7.5" width="14" height="2.8" rx="1.4" fill="#FFD54F" opacity="0.9"/><rect x="5" y="11" width="14" height="2.8" rx="1.4" fill="#4da6ff" opacity="0.85"/><rect x="5" y="14.5" width="14" height="2.8" rx="1.4" fill="#c88040" opacity="0.8"/></svg>',
 };
+// Alias: SITES uses 'hub' as the key for solarsystemresource; BRAND_MARKS.hub points at the same pill-box SVG for consistency.
+RS.BRAND_MARKS.hub = RS.BRAND_MARKS.solarsystem;
 
 
 RS.generateFavicon = function(siteKey) {
@@ -344,6 +346,7 @@ RS.NAV_ICONS = {
   Uranus: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="#7ec8d4"/><ellipse cx="12" cy="12" rx="2" ry="9" fill="none" stroke="#a0d8e0" stroke-width="0.6" opacity="0.4" transform="rotate(8 12 12)"/></svg>',
   Neptune: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="#3050c0"/><ellipse cx="12" cy="10" rx="6" ry="1" fill="#5070e0" opacity="0.4"/><ellipse cx="10" cy="12" rx="1.8" ry="1.3" fill="#2040a0" opacity="0.5"/></svg>',
   Pluto: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#b0a090"/><circle cx="10" cy="11" r="1.5" fill="#907060" opacity="0.3"/><circle cx="14" cy="13" r="2" fill="#c0b0a0" opacity="0.3"/></svg>',
+  SolarSystem: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="#FFD54F"/><circle cx="12" cy="12" r="3.2" fill="#FFB300" opacity="0.4"/><circle cx="12" cy="12" r="7" fill="none" stroke="#4da6ff" stroke-width="0.7" opacity="0.5"/><circle cx="12" cy="12" r="10" fill="none" stroke="#c88040" stroke-width="0.5" opacity="0.4"/><circle cx="19" cy="12" r="1.1" fill="#c88040"/><circle cx="5" cy="12" r="0.9" fill="#4da6ff"/></svg>',
 };
 
 // ═══ SOLAR SYSTEM RENDERER ═══
@@ -640,6 +643,7 @@ RS._authMsg = function(el, text, success) {
 // ═══ SHARED UI COMPONENTS ═══
 
 // Generate planet navigation bar · highlights the active site
+// 'hub' = SolarSystemResource (the heliocentric overview), kept at the end as a lens-up button.
 RS.renderPlanetNav = function(activeSiteKey) {
   var planets = [
     { key: 'sun', label: 'SunResource' },
@@ -653,14 +657,16 @@ RS.renderPlanetNav = function(activeSiteKey) {
     { key: 'uranus', label: 'UranusResource' },
     { key: 'neptune', label: 'NeptuneResource' },
     { key: 'pluto', label: 'PlutoResource' },
+    { key: 'hub', label: 'SolarSystemResource' },
   ];
+  var liveKeys = { earth: 1, moon: 1, mars: 1, hub: 1 };
   var html = '';
   for (var i = 0; i < planets.length; i++) {
     var p = planets[i];
     var site = RS.SITES[p.key];
     var isActive = p.key === activeSiteKey;
-    var isLive = p.key === 'earth' || p.key === 'moon' || p.key === 'mars';
-    var iconKey = p.key === 'earth' ? 'Earth' : p.key === 'hub' ? 'Sun' : p.key.charAt(0).toUpperCase() + p.key.slice(1);
+    var isLive = !!liveKeys[p.key];
+    var iconKey = p.key === 'earth' ? 'Earth' : p.key === 'hub' ? 'SolarSystem' : p.key.charAt(0).toUpperCase() + p.key.slice(1);
     var icon = RS.NAV_ICONS && RS.NAV_ICONS[iconKey] ? RS.NAV_ICONS[iconKey] : iconKey.charAt(0);
     var opacity = isActive ? '1' : (isLive ? '0.7' : '0.45');
     var click = isActive ? '' : (' onclick="window.open(\'https://' + site.domain + '\',\'_blank\')"');

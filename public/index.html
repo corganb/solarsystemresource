@@ -126,11 +126,11 @@ html, body {
   cursor: pointer;
 }
 .tb-brand-mark {
-  width: 26px; height: 26px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 38%, var(--accent-soft) 0%, var(--accent) 50%, #c08020 100%);
-  box-shadow: 0 0 12px rgba(232,200,64,0.35);
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.tb-brand-mark svg { width: 26px; height: 26px; }
 .tb-subtitle {
   font-size: 9.5px; color: var(--t3); font-weight: 400;
   letter-spacing: 0.08em;
@@ -467,6 +467,7 @@ html, body {
   </div>
   <div class="tb-right">
     <div id="auth-btn-container"></div>
+    <span class="tb-footlinks" style="display:flex;gap:8px;margin-left:8px;font-size:9px;opacity:0.35"><a href="https://instagram.com/resourcesystems" target="_blank" style="color:var(--t2);text-decoration:none">IG</a><a href="https://x.com/resource_sys" target="_blank" style="color:var(--t2);text-decoration:none">X</a><a href="/faq" style="color:var(--t2);text-decoration:none">FAQ</a><a href="/privacy" style="color:var(--t2);text-decoration:none">Privacy</a><a href="/terms" style="color:var(--t2);text-decoration:none">Terms</a></span>
   </div>
 </div>
 
@@ -525,7 +526,7 @@ html, body {
 
 <!-- ═══ LIBRARIES ═══ -->
 <script src="https://typpo.github.io/spacekit/build/spacekit.js"></script>
-<script src="resource-systems-core.js?v=6"></script>
+<script src="resource-systems-core.js?v=7"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -603,7 +604,7 @@ function initSolarSystem() {
     // in the basePath. Without it every sprite texture 404s and planets render
     // as invisible points even though their orbit ellipses still draw fine.
     basePath: 'https://typpo.github.io/spacekit/src',
-    jdPerSecond: 10,
+    jdPerSecond: 1,
     camera: {
       initialPosition: [-3.2, -3.2, 2.4],
       enableDrift: false
@@ -919,6 +920,12 @@ setInterval(updateStatusBar, 1000);
 
 // ═══ TOP BAR: CROSS-SITE NAV + AUTH ═══
 (function initTopBar() {
+  // Brand mark (pill-box SVG from shared core.js, matching Terra/Moon/Mars family style)
+  var brandEl = document.querySelector('.tb-brand-mark');
+  if (brandEl && RS && RS.BRAND_MARKS) {
+    brandEl.innerHTML = RS.BRAND_MARKS.hub || RS.BRAND_MARKS.solarsystem || '';
+  }
+
   // Cross-site planet navigation (hub active)
   var navEl = document.getElementById('planet-nav');
   if (navEl && RS && RS.renderPlanetNav) {
