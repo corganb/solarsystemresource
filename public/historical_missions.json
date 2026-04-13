@@ -1,0 +1,145 @@
+[
+  {
+    "id": "voyager-1",
+    "name": "Voyager 1",
+    "agency": "NASA / JPL",
+    "type": "interstellar_probe",
+    "launch": "1977-09-05T12:56:00Z",
+    "status": "active",
+    "description": "First human-made object to enter interstellar space (2012). Carries the Golden Record and continues to transmit science data from beyond the heliopause.",
+    "color": "#e8c840",
+    "closest_approach_km": null,
+    "launch_site": { "name": "Cape Canaveral LC-41", "lat": 28.5833, "lng": -80.5833 }
+  },
+  {
+    "id": "voyager-2",
+    "name": "Voyager 2",
+    "agency": "NASA / JPL",
+    "type": "interstellar_probe",
+    "launch": "1977-08-20T14:29:00Z",
+    "status": "active",
+    "description": "Only spacecraft to have flown by all four gas giants (Jupiter, Saturn, Uranus, Neptune). Crossed the heliopause in 2018.",
+    "color": "#e8c840",
+    "launch_site": { "name": "Cape Canaveral LC-41", "lat": 28.5833, "lng": -80.5833 }
+  },
+  {
+    "id": "pioneer-10",
+    "name": "Pioneer 10",
+    "agency": "NASA / ARC",
+    "type": "outer_planets_probe",
+    "launch": "1972-03-03T01:49:04Z",
+    "return": "2003-01-23T00:00:00Z",
+    "status": "silent",
+    "description": "First spacecraft to traverse the asteroid belt and first to make direct observations of Jupiter. Last signal received Jan 2003.",
+    "color": "#b8bccc"
+  },
+  {
+    "id": "pioneer-11",
+    "name": "Pioneer 11",
+    "agency": "NASA / ARC",
+    "type": "outer_planets_probe",
+    "launch": "1973-04-06T02:11:00Z",
+    "return": "1995-11-24T00:00:00Z",
+    "status": "silent",
+    "description": "First spacecraft to encounter Saturn and the second to fly through the asteroid belt and past Jupiter.",
+    "color": "#b8bccc"
+  },
+  {
+    "id": "galileo",
+    "name": "Galileo",
+    "agency": "NASA / JPL",
+    "type": "jupiter_orbiter",
+    "launch": "1989-10-18T16:53:40Z",
+    "return": "2003-09-21T18:57:00Z",
+    "status": "completed",
+    "description": "First spacecraft to orbit Jupiter (1995). Dropped a probe into Jupiter's atmosphere and conducted 34 orbits before intentional impact.",
+    "color": "#c88040"
+  },
+  {
+    "id": "cassini",
+    "name": "Cassini-Huygens",
+    "agency": "NASA / ESA / ASI",
+    "type": "saturn_orbiter",
+    "launch": "1997-10-15T08:43:00Z",
+    "return": "2017-09-15T11:55:00Z",
+    "status": "completed",
+    "description": "Saturn orbiter and Huygens Titan lander. 13-year mission redefined our understanding of Saturn, its rings, and its moons.",
+    "color": "#d4b46a"
+  },
+  {
+    "id": "new-horizons",
+    "name": "New Horizons",
+    "agency": "NASA / APL",
+    "type": "kuiper_belt_probe",
+    "launch": "2006-01-19T19:00:00Z",
+    "status": "active",
+    "description": "First spacecraft to fly by Pluto (2015) and Kuiper Belt object Arrokoth (2019). Currently exploring the Kuiper Belt.",
+    "color": "#b0a090"
+  },
+  {
+    "id": "juno",
+    "name": "Juno",
+    "agency": "NASA / JPL",
+    "type": "jupiter_orbiter",
+    "launch": "2011-08-05T16:25:00Z",
+    "status": "active",
+    "description": "Jupiter polar orbiter studying the planet's atmosphere, gravity, magnetic field, and origin. Extended mission includes flybys of Galilean moons.",
+    "color": "#c88040"
+  },
+  {
+    "id": "parker-solar-probe",
+    "name": "Parker Solar Probe",
+    "agency": "NASA / APL",
+    "type": "sun_probe",
+    "launch": "2018-08-12T07:31:00Z",
+    "status": "active",
+    "description": "Closest spacecraft to the Sun ever (~6.2M km). Studies the solar corona, solar wind origin, and magnetic fields.",
+    "color": "#e8c840"
+  },
+  {
+    "id": "bepicolombo",
+    "name": "BepiColombo",
+    "agency": "ESA / JAXA",
+    "type": "mercury_orbiter",
+    "launch": "2018-10-20T01:45:28Z",
+    "status": "active",
+    "description": "Dual-spacecraft mission to Mercury. Currently in cruise phase with multiple gravity assists. Mercury orbit insertion planned 2026.",
+    "color": "#a0a0a0"
+  },
+  {
+    "id": "europa-clipper",
+    "name": "Europa Clipper",
+    "agency": "NASA / JPL",
+    "type": "jupiter_moon_flyby",
+    "launch": "2024-10-14T16:06:00Z",
+    "status": "active",
+    "description": "Will conduct 49 flybys of Jupiter's icy moon Europa to investigate the subsurface ocean and search for conditions suitable for life.",
+    "color": "#7db3ff"
+  },
+  {
+    "id": "juice",
+    "name": "JUICE",
+    "agency": "ESA",
+    "type": "jupiter_moon_orbiter",
+    "launch": "2023-04-14T12:14:36Z",
+    "status": "active",
+    "description": "Jupiter Icy Moons Explorer. Will study Ganymede, Callisto, and Europa in detail. Arrives at Jupiter July 2031.",
+    "color": "#7db3ff"
+  },
+  {
+    "id": "artemis-2",
+    "name": "Artemis II",
+    "agency": "NASA",
+    "type": "crewed_lunar_flyby",
+    "launch": "2026-04-01T22:34:15Z",
+    "return": "2026-04-11T00:00:00Z",
+    "status": "completed",
+    "crew": ["Reid Wiseman", "Victor Glover", "Christina Koch", "Jeremy Hansen"],
+    "trajectory_url": "artemis2_oem.json",
+    "closest_approach_km": 6600,
+    "description": "First crewed lunar mission since Apollo 17 (1972). Free-return trajectory around the Moon with closest approach ~6,600 km above the far side.",
+    "color": "#4da6ff",
+    "launch_site": { "name": "KSC LC-39B", "lat": 28.6083, "lng": -80.6041 },
+    "splashdown": { "name": "Pacific Ocean", "lat": 24.6, "lng": -167.5 }
+  }
+]
