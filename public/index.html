@@ -625,6 +625,14 @@ function initSolarSystem() {
   window.SSR_viz = viz;
 
   // ── LAYER BUILDER: planets ──
+  // Each planet gets a labelText (Sun, Mercury, Venus, ...) so users can
+  // actually identify which sprite is which. Preset is cloned to avoid
+  // mutating the shared SpaceObjectPresets object across layer rebuilds.
+  var PLANET_LABELS = {
+    sun: 'Sun', mercury: 'Mercury', venus: 'Venus', earth: 'Earth',
+    mars: 'Mars', jupiter: 'Jupiter', saturn: 'Saturn',
+    uranus: 'Uranus', neptune: 'Neptune'
+  };
   layerBuilders['planets'] = function() {
     var out = [];
     var bodies = [
@@ -633,19 +641,41 @@ function initSolarSystem() {
       ['uranus', 'URANUS'], ['neptune', 'NEPTUNE']
     ];
     for (var i = 0; i < bodies.length; i++) {
-      var preset = Spacekit.SpaceObjectPresets && Spacekit.SpaceObjectPresets[bodies[i][1]];
-      if (!preset) continue;
-      try { out.push(viz.createObject(bodies[i][0], preset)); }
-      catch(e) { console.warn('[SSR] planets:', bodies[i][1], e); }
+      var basePreset = Spacekit.SpaceObjectPresets && Spacekit.SpaceObjectPresets[bodies[i][1]];
+      if (!basePreset) continue;
+      // Shallow clone + add labelText. Using Object.assign to avoid touching the shared preset.
+      var presetCopy = {};
+      for (var k in basePreset) { if (basePreset.hasOwnProperty(k)) presetCopy[k] = basePreset[k]; }
+      presetCopy.labelText = PLANET_LABELS[bodies[i][0]];
+      try {
+        var planet = viz.createObject(bodies[i][0], presetCopy);
+        tagLabel(planet, 'planets');
+        out.push(planet);
+      } catch(e) { console.warn('[SSR] planets:', bodies[i][1], e); }
     }
     return out;
   };
 
   // ── LAYER BUILDER: orbits ──
-  // Spacekit draws orbit ellipses by default when a SpaceObject with ephem is created.
-  // Orbits are part of the planet object's Three.js representation. We toggle them via
-  // getOrbit().setVisibility() per the spacekit API.
-  layerBuilders['orbits'] = function() { return []; /* managed via planets */ };
+  // Hides the planet orbit ellipses without touching the sprites. Uses a
+  // thin wrapper per planet whose get3jsObjects() returns nothing (so the
+  // sprite visibility isn't touched) and whose getOrbit() delegates to the
+  // underlying planet's orbit. setLayerVisibility's orbit branch then
+  // controls visibility via Orbit.setVisibility.
+  layerBuilders['orbits'] = function() {
+    if (!sceneObjects['planets'] || sceneObjects['planets'].length === 0) {
+      // Build planets first so orbit refs exist
+      return [];
+    }
+    var out = [];
+    sceneObjects['planets'].forEach(function(planet) {
+      out.push({
+        get3jsObjects: function() { return []; },
+        getOrbit: function() { return typeof planet.getOrbit === 'function' ? planet.getOrbit() : null; }
+      });
+    });
+    return out;
+  };
 
   // ═══════════════════════════════════════════════════════════════════════
   // LAYER BUILDERS (v0.2)
@@ -856,10 +886,53 @@ function initSolarSystem() {
     return out;
   };
 
-  // ── LAYER BUILDER: active spacecraft (JPL Horizons integration in v0.3) ──
+  // ── LAYER BUILDER: active spacecraft ──
+  // Loads the same historical_missions.json as historical-missions, filters
+  // to status === 'active', and places each at an approximate heliocentric
+  // marker. Full JPL Horizons API integration is planned for v0.3.
+  var ACTIVE_PLACEMENTS = {
+    'voyager-1':          { r: 30, theta: 35,  z: 5 },
+    'voyager-2':          { r: 28, theta: 210, z: -8 },
+    'new-horizons':       { r: 20, theta: 310, z: 1 },
+    'juno':               { r: 5.2, theta: 120, z: 0.2 },
+    'parker-solar-probe': { r: 0.4, theta: 60,  z: 0.1 },
+    'bepicolombo':        { r: 0.6, theta: 200, z: 0.05 },
+    'europa-clipper':     { r: 3.0, theta: 80,  z: 0.1 },
+    'juice':              { r: 3.5, theta: 40,  z: 0.3 }
+  };
   layerBuilders['active-spacecraft'] = function() {
-    showToast('Active spacecraft trajectories arrive in v0.3 (JPL Horizons)');
-    return [];
+    var out = [];
+    fetch('historical_missions.json')
+      .then(function(r) { return r.json(); })
+      .then(function(missions) {
+        missions.forEach(function(m) {
+          if (m.status !== 'active') return;
+          var place = ACTIVE_PLACEMENTS[m.id];
+          if (!place) return;
+          var lon = place.theta * Math.PI / 180;
+          var pos = [place.r * Math.cos(lon), place.r * Math.sin(lon), place.z || 0];
+          var color = parseInt((m.color || '#4ade80').replace('#', ''), 16);
+          try {
+            var obj = viz.createObject('active-' + m.id, {
+              position: pos,
+              textureUrl: '{{assets}}/sprites/fuzzyparticle.png',
+              theme: { color: color },
+              labelText: m.name,
+              scale: [0.7, 0.7, 0.7]
+            });
+            tagLabel(obj, 'active-spacecraft');
+            out.push(obj);
+          } catch(e) { console.warn('[SSR] active', m.id, e); }
+        });
+        // Async race fix: if user toggled off while fetching, hide everything
+        var layerNow = S.layers.find(function(l) { return l.id === 'active-spacecraft'; });
+        if (layerNow && !layerNow.visible) {
+          setLayerVisibility(out, false, 'active-spacecraft');
+        }
+        showToast(out.length + ' active spacecraft rendered (approximate positions)');
+      })
+      .catch(function(e) { console.warn('[SSR] active spacecraft load failed:', e); });
+    return out;
   };
 
   // ── LAYER BUILDER: historical missions (static markers from JSON) ──
