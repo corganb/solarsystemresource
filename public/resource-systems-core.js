@@ -362,8 +362,8 @@ RS.renderSolarSystem = function(viewer, options) {
   var moonPhase = RS.getMoonPhase();
   var moonEntity = viewer.entities.add({
     name: 'Moon', position: moonPosition,
-    billboard: { image: 'data:image/svg+xml,' + encodeURIComponent(RS.buildMoonSVG(moonPhase.pct)), width: 36, height: 36, scaleByDistance: new Cesium.NearFarScalar(5e5,2.5,5e8,0.7), disableDepthTestDistance: 0 },
-    label: { text: moonPhase.icon + ' Moon \u00b7 ' + moonPhase.name, font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#d4d4c8'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(18,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e6,1,5e8,0.4), disableDepthTestDistance: 0 },
+    billboard: { image: 'data:image/svg+xml,' + encodeURIComponent(RS.buildMoonSVG(moonPhase.pct)), width: 36, height: 36, scaleByDistance: new Cesium.NearFarScalar(5e5,2.5,5e8,0.7), disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: { text: moonPhase.icon + ' Moon \u00b7 ' + moonPhase.name, font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#d4d4c8'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(18,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e6,1,5e8,0.4), disableDepthTestDistance: Number.POSITIVE_INFINITY },
     description: '<b>The Moon</b><br>Phase: ' + moonPhase.icon + ' ' + moonPhase.name + '<br>Distance: ~384,400 km',
   });
   celestialEntities['Moon'] = { entity: moonEntity, url: 'https://moonresource.com' };
@@ -374,8 +374,11 @@ RS.renderSolarSystem = function(viewer, options) {
   }, false);
   var sunEntity = viewer.entities.add({
     name: 'Sun', position: sunPosition,
-    billboard: { image: RS.SUN_SVG, width: 50, height: 50, scaleByDistance: new Cesium.NearFarScalar(1e7,1.2,2e11,0.4), disableDepthTestDistance: 0 },
-    label: { text: 'Sun', font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#FFD54F'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(28,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e7,1,2e11,0.3), disableDepthTestDistance: 0 },
+    // disableDepthTestDistance: Infinity means the billboard/label always draw
+    // on top of the globe regardless of depth buffer. Without this, the Sun
+    // (150M km away) ends up behind Earth in the depth test and disappears.
+    billboard: { image: RS.SUN_SVG, width: 50, height: 50, scaleByDistance: new Cesium.NearFarScalar(1e7,1.2,2e11,0.4), disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: { text: 'Sun', font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#FFD54F'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(28,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e7,1,2e11,0.3), disableDepthTestDistance: Number.POSITIVE_INFINITY },
     description: '<b>The Sun</b><br>Type: G2V main-sequence star<br>Angular diameter: ~0.53\u00b0<br>Distance: ~149.6M km<br>Surface Temp: ~5,778 K',
   });
   celestialEntities['Sun'] = { entity: sunEntity, url: 'https://sunresource.net' };
@@ -388,8 +391,8 @@ RS.renderSolarSystem = function(viewer, options) {
     var pEntity = viewer.entities.add({
       name: p.name,
       position: new Cesium.CallbackProperty((function(pn) { return function() { return RS.icrfToFixed(RS.getPlanetPosition(pn).pos); }; })(p.name), false),
-      billboard: { image: RS.makePlanetSVG(p.name, p.color, iPx*0.8), width: iPx*2, height: iPx*2, scaleByDistance: new Cesium.NearFarScalar(1e7,1.2,5e12,0.5), disableDepthTestDistance: 0 },
-      label: { text: p.name + ' \u2197', font: '10px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString(p.color), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(iPx+6,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e7,1,5e12,0.3), disableDepthTestDistance: 0 },
+      billboard: { image: RS.makePlanetSVG(p.name, p.color, iPx*0.8), width: iPx*2, height: iPx*2, scaleByDistance: new Cesium.NearFarScalar(1e7,1.2,5e12,0.5), disableDepthTestDistance: Number.POSITIVE_INFINITY },
+      label: { text: p.name + ' \u2197', font: '10px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString(p.color), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(iPx+6,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e7,1,5e12,0.3), disableDepthTestDistance: Number.POSITIVE_INFINITY },
       description: '<b>' + p.name + '</b><br>' + p.desc + '<br>Distance: ~' + (pd.distKm/1e6).toFixed(1) + 'M km',
     });
     celestialEntities[p.name] = { entity: pEntity, url: p.url };

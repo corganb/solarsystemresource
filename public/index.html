@@ -526,7 +526,7 @@ html, body {
 
 <!-- ═══ LIBRARIES ═══ -->
 <script src="https://typpo.github.io/spacekit/build/spacekit.js"></script>
-<script src="resource-systems-core.js?v=7"></script>
+<script src="resource-systems-core.js?v=8"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -542,7 +542,7 @@ var LAYERS = [
   // Bodies
   { id: 'planets',       title: 'Planets',       category: 'Bodies', source: 'jpl',  desc: 'Sun + 8 planets',                       visible: true },
   { id: 'orbits',        title: 'Orbit Lines',   category: 'Bodies', source: 'jpl',  desc: 'Keplerian orbit paths (ecliptic)',      visible: true },
-  { id: 'planet-labels', title: 'Planet Labels', category: 'Bodies', source: 'jpl',  desc: 'Name tags on Sun + 8 planets',          visible: true },
+  { id: 'planet-labels', title: 'Planet Labels', category: 'Bodies', source: 'jpl',  desc: 'Name tags on Sun + 8 planets',          visible: false },
   { id: 'dwarfs',        title: 'Dwarf Planets', category: 'Bodies', source: 'jpl',  desc: 'Pluto, Ceres, Eris, Haumea, Makemake',  visible: false },
   { id: 'moons',         title: 'Major Moons',   category: 'Bodies', source: 'jpl',  desc: 'Principal moons of each planet',        visible: false },
 
@@ -1117,6 +1117,12 @@ function initSolarSystem() {
       sceneObjects[l.id] = layerBuilders[l.id]() || [];
     }
   }
+
+  // Apply initial cross-layer state for planet labels. Each planet's label
+  // is created visible by spacekit's init() regardless of our layer defaults,
+  // so we need to run the cascade once at startup to honor the user's
+  // catalog default (planet-labels off by default = labels hidden on load).
+  cascadePlanetLabels();
 
   updateStatusBar();
 }
