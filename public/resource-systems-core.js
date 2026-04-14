@@ -28,6 +28,7 @@ RS.SITES = {
   neptune:  { name: 'Neptune',  domain: 'neptuneresource.net',      color: '#4060d4', icon: '🔵' },
   pluto:    { name: 'Pluto',    domain: 'plutoresource.net',        color: '#b0a090', icon: '⚪' },
   hub:      { name: 'Solar System', domain: 'solarsystemresource.com', color: '#ffffff', icon: '☀️' },
+  galactic: { name: 'Milky Way',    domain: 'galacticresource.com',    color: '#a0b8ff', icon: '🌌' },
 };
 
 // ═══ LOGO & FAVICON SYSTEM ═══
@@ -52,6 +53,9 @@ RS.BRAND_MARKS = {
 };
 // Alias: SITES uses 'hub' as the key for solarsystemresource; BRAND_MARKS.hub points at the same pill-box SVG for consistency.
 RS.BRAND_MARKS.hub = RS.BRAND_MARKS.solarsystem;
+
+// Galactic brand: deep indigo base, blue/white/purple bars evoking spiral arms
+RS.BRAND_MARKS.galactic = '<svg width="24" height="24" viewBox="0 0 24 24"><defs><radialGradient id="galg" cx="35%" cy="35%"><stop offset="0%" stop-color="#a0b8ff" stop-opacity="0.7"/><stop offset="100%" stop-color="#050820" stop-opacity="0"/></radialGradient></defs><circle cx="12" cy="12" r="11" fill="#060820"/><circle cx="12" cy="12" r="11" fill="url(#galg)"/><rect x="5" y="7.5" width="14" height="2.8" rx="1.4" fill="#a0b8ff" opacity="0.85"/><rect x="5" y="11" width="14" height="2.8" rx="1.4" fill="#ffddaa" opacity="0.8"/><rect x="5" y="14.5" width="14" height="2.8" rx="1.4" fill="#8890dd" opacity="0.7"/></svg>';
 
 
 RS.generateFavicon = function(siteKey) {
@@ -347,6 +351,7 @@ RS.NAV_ICONS = {
   Neptune: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="#3050c0"/><ellipse cx="12" cy="10" rx="6" ry="1" fill="#5070e0" opacity="0.4"/><ellipse cx="10" cy="12" rx="1.8" ry="1.3" fill="#2040a0" opacity="0.5"/></svg>',
   Pluto: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="#b0a090"/><circle cx="10" cy="11" r="1.5" fill="#907060" opacity="0.3"/><circle cx="14" cy="13" r="2" fill="#c0b0a0" opacity="0.3"/></svg>',
   SolarSystem: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="#FFD54F"/><circle cx="12" cy="12" r="3.2" fill="#FFB300" opacity="0.4"/><circle cx="12" cy="12" r="7" fill="none" stroke="#4da6ff" stroke-width="0.7" opacity="0.5"/><circle cx="12" cy="12" r="10" fill="none" stroke="#c88040" stroke-width="0.5" opacity="0.4"/><circle cx="19" cy="12" r="1.1" fill="#c88040"/><circle cx="5" cy="12" r="0.9" fill="#4da6ff"/></svg>',
+  Galactic: '<svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" fill="#ffddaa"/><circle cx="16" cy="10" r="0.9" fill="#a0b8ff"/><circle cx="8" cy="14" r="0.9" fill="#a0b8ff"/><circle cx="14" cy="17" r="0.7" fill="#a0b8ff"/><circle cx="10" cy="7" r="0.7" fill="#a0b8ff"/><circle cx="19" cy="13" r="0.6" fill="#a0b8ff"/><circle cx="5" cy="11" r="0.6" fill="#a0b8ff"/><circle cx="17" cy="6" r="0.5" fill="#a0b8ff"/><circle cx="6" cy="18" r="0.5" fill="#a0b8ff"/></svg>',
 };
 
 // ═══ SOLAR SYSTEM RENDERER ═══
@@ -646,7 +651,8 @@ RS._authMsg = function(el, text, success) {
 // ═══ SHARED UI COMPONENTS ═══
 
 // Generate planet navigation bar · highlights the active site
-// 'hub' = SolarSystemResource (the heliocentric overview), kept at the end as a lens-up button.
+// 'hub' = SolarSystemResource (heliocentric overview). 'galactic' = GalacticResource
+// (milky way scale). Both are appended after the planets and a separator.
 RS.renderPlanetNav = function(activeSiteKey) {
   var planets = [
     { key: 'sun', label: 'SunResource' },
@@ -661,17 +667,27 @@ RS.renderPlanetNav = function(activeSiteKey) {
     { key: 'neptune', label: 'NeptuneResource' },
     { key: 'pluto', label: 'PlutoResource' },
     { key: 'hub', label: 'SolarSystemResource' },
+    { key: 'galactic', label: 'GalacticResource' },
   ];
-  var liveKeys = { earth: 1, moon: 1, mars: 1, hub: 1 };
+  // All thirteen sibling sites are scaffolded and reachable at their
+  // .pages.dev URLs as of 2026-04-14; treat the whole family as live.
+  var liveKeys = {
+    sun: 1, mercury: 1, venus: 1, earth: 1, moon: 1, mars: 1,
+    jupiter: 1, saturn: 1, uranus: 1, neptune: 1, pluto: 1,
+    hub: 1, galactic: 1,
+  };
   var html = '';
   for (var i = 0; i < planets.length; i++) {
     var p = planets[i];
     var site = RS.SITES[p.key];
     var isActive = p.key === activeSiteKey;
     var isLive = !!liveKeys[p.key];
-    var iconKey = p.key === 'earth' ? 'Earth' : p.key === 'hub' ? 'SolarSystem' : p.key.charAt(0).toUpperCase() + p.key.slice(1);
+    var iconKey = p.key === 'earth' ? 'Earth'
+                : p.key === 'hub' ? 'SolarSystem'
+                : p.key === 'galactic' ? 'Galactic'
+                : p.key.charAt(0).toUpperCase() + p.key.slice(1);
     var icon = RS.NAV_ICONS && RS.NAV_ICONS[iconKey] ? RS.NAV_ICONS[iconKey] : iconKey.charAt(0);
-    var opacity = isActive ? '1' : (isLive ? '0.7' : '0.45');
+    var opacity = isActive ? '1' : (isLive ? '0.75' : '0.4');
     var click = isActive ? '' : (' onclick="window.open(\'https://' + site.domain + '\',\'_blank\')"');
     var cls = isActive ? 'tb-btn active' : 'tb-btn';
     html += '<button class="' + cls + '"' + click + ' title="' + p.label + '" style="width:28px;height:26px;padding:0;display:flex;align-items:center;justify-content:center;opacity:' + opacity + '">' + icon + '</button>';
