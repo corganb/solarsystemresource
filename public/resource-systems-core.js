@@ -213,6 +213,36 @@ RS.getPlanetPosition = function(planet) {
   return { pos: new Cesium.Cartesian3(x, y, z), distKm: r / 1000 };
 };
 
+// Cesium-free heliocentric planet position for Three.js-based sites.
+// Returns raw {x, y, z, distKm} in meters (and km for distance) using the
+// same simplified Kepler elements as getPlanetPosition, but without any
+// Cesium dependency so the Three.js sites can use it.
+RS.getPlanetPositionXYZ = function(name) {
+  var AU = 149597870700;
+  var p = RS.PLANETS_DATA.find(function(x) { return x.name === name; });
+  if (!p) return null;
+  // Days since J2000 (JD 2451545.0 = 2000-01-01T12:00:00Z)
+  var d = (Date.now() / 86400000) + 2440587.5 - 2451545.0;
+  var T = d / 36525;
+  var M = (((p.L + 360 * T / (Math.pow(p.a, 1.5) * 365.25) - p.wBar) % 360) + 360) % 360 * Math.PI / 180;
+  var E = M;
+  for (var k = 0; k < 10; k++) E = M + p.e * Math.sin(E);
+  var v = 2 * Math.atan2(Math.sqrt(1 + p.e) * Math.sin(E/2), Math.sqrt(1 - p.e) * Math.cos(E/2));
+  var r = p.a * (1 - p.e * Math.cos(E)) * AU;
+  var Om = p.Om * Math.PI / 180;
+  var w = (p.wBar - p.Om) * Math.PI / 180;
+  var inc = p.i * Math.PI / 180;
+  var cosO = Math.cos(Om), sinO = Math.sin(Om);
+  var cosW = Math.cos(w + v), sinW = Math.sin(w + v);
+  var cosI = Math.cos(inc), sinI = Math.sin(inc);
+  return {
+    x: r * (cosO * cosW - sinO * sinW * cosI),
+    y: r * (sinO * cosW + cosO * sinW * cosI),
+    z: r * sinW * sinI,
+    distKm: r / 1000,
+  };
+};
+
 RS.getMoonPhase = function() {
   var now = new Date();
   var ref = new Date('2000-01-06T18:14:00Z');
