@@ -373,9 +373,21 @@ RS.renderSolarSystem = function(viewer, options) {
   });
   celestialEntities['Moon'] = { entity: moonEntity, url: 'https://moonresource.com' };
 
-  // Sun
+  // Sun  —  clamped to a symbolic distance so it stays inside Cesium's
+  // fog range. The real Sun is 150M km from Earth which is FAR beyond
+  // scene.fog's exponential opacity rolloff (density ~0.0002), so a
+  // billboard at real scale is effectively 100% fogged out and invisible.
+  // We keep the DIRECTION correct by normalizing the ICRF sun vector and
+  // scaling to a finite distance (default 20,000 km, overridable via
+  // options.sunDistance). This matches how NASA Eyes, SolarSystemScope
+  // and similar Cesium/Three.js solar viewers handle the scale mismatch.
+  var SUN_DISPLAY_DIST = options.sunDistance || 2e7;
   var sunPosition = new Cesium.CallbackProperty(function() {
-    return RS.icrfToFixed(Cesium.Simon1994PlanetaryPositions.computeSunPositionInEarthInertialFrame(Cesium.JulianDate.now()));
+    var icrf = Cesium.Simon1994PlanetaryPositions.computeSunPositionInEarthInertialFrame(Cesium.JulianDate.now());
+    var fixed = RS.icrfToFixed(icrf);
+    var len = Cesium.Cartesian3.magnitude(fixed);
+    if (len === 0 || !isFinite(len)) return fixed;
+    return Cesium.Cartesian3.multiplyByScalar(fixed, SUN_DISPLAY_DIST / len, new Cesium.Cartesian3());
   }, false);
   var sunEntity = viewer.entities.add({
     name: 'Sun', position: sunPosition,
@@ -388,7 +400,9 @@ RS.renderSolarSystem = function(viewer, options) {
   });
   celestialEntities['Sun'] = { entity: sunEntity, url: 'https://sunresource.net' };
 
-  // Planets
+  // Planets (unchanged — keeping real scale positions for now; only Sun has
+  // been reported as invisible, and clamping planets could affect existing
+  // planet-related features on Terra that depend on real distance)
   for (var i = 0; i < RS.PLANETS_DATA.length; i++) {
     var p = RS.PLANETS_DATA[i];
     var pd = RS.getPlanetPosition(p.name);
