@@ -1415,7 +1415,7 @@ setInterval(updateStatusBar, 1000);
 // Polls the shared Supabase edge function that all Resource Systems sites use.
 (function initDSN() {
   var DSN_POLL_URL = 'https://pxocavaczfjcpvqeiznt.supabase.co/functions/v1/dsn-status';
-  var ANON_KEY = 'sb_publishable_1IZ6cL3vvPdAc1f8u2ah6w_-txoo_VL';
+  var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4b2NhdmFjemZqY3B2cWVpem50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDA3MDcsImV4cCI6MjA5MDExNjcwN30.48A2xW4YoGCESsVurxmW3MP9x_lq2AJ8XeS8nR2RVGI';
 
   function pollDSN() {
     fetch(DSN_POLL_URL, { headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY } })
