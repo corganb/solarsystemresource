@@ -306,7 +306,7 @@ html, body {
 .dsn-panel .dsn-dot {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
   background: #fbbf24; margin-left: 4px; vertical-align: middle;
-  animation: dsn-pulse 1.5s infinite;
+  
 }
 .dsn-panel .dsn-minimize {
   background: none; border: 1px solid rgba(255,152,0,0.3);
@@ -314,34 +314,8 @@ html, body {
   border-radius: 4px; cursor: pointer; padding: 0; line-height: 1;
   display: flex; align-items: center; justify-content: center;
 }
-@keyframes dsn-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+ }
 
-/* ═══ LOADING OVERLAY ═══ */
-#loader {
-  position: fixed; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  background: radial-gradient(ellipse at center, #0a0e24 0%, #020410 70%);
-  z-index: 1000;
-  transition: opacity 0.6s ease;
-}
-#loader .sun {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 38%, #fff4c0 0%, #e8c840 45%, #c08020 100%);
-  box-shadow: 0 0 40px rgba(232,200,64,0.6), 0 0 80px rgba(232,200,64,0.25);
-  animation: sun-pulse 2.4s ease-in-out infinite;
-}
-@keyframes sun-pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(232,200,64,0.6), 0 0 80px rgba(232,200,64,0.25); }
-  50% { transform: scale(1.04); box-shadow: 0 0 52px rgba(232,200,64,0.75), 0 0 100px rgba(232,200,64,0.35); }
-}
-#loader .label {
-  margin-top: 24px; font-size: 12px; color: var(--t2);
-  font-family: 'JetBrains Mono', monospace;
-  letter-spacing: 0.08em; text-transform: uppercase;
-}
-#loader .label .dot { animation: dot-blink 1.4s steps(3) infinite; }
-@keyframes dot-blink { 0%, 33% { opacity: 0.3; } 34%, 66% { opacity: 0.7; } 67%, 100% { opacity: 1; } }
 
 /* ═══ STATUS BAR ═══ */
 .statusbar {
@@ -363,9 +337,9 @@ html, body {
 .pulse {
   display: inline-block; width: 6px; height: 6px; border-radius: 50%;
   background: var(--accent); box-shadow: 0 0 6px var(--accent);
-  animation: pulse 2s ease-in-out infinite;
+  
 }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+ }
 
 /* ═══ MODAL + TOAST SHARED STYLES ═══ */
 .intel-overlay {
@@ -445,12 +419,6 @@ html, body {
 <!-- Main 3D scene container (spacekit renders into this) -->
 <div id="main-container"></div>
 
-<!-- Loading overlay (hidden after scene loads) -->
-<div id="loader">
-  <div class="sun"></div>
-  <div class="label">Loading Solar System<span class="dot">...</span></div>
-</div>
-
 <!-- Top bar -->
 <div class="topbar">
   <div class="tb-left">
@@ -526,7 +494,7 @@ html, body {
 
 <!-- ═══ LIBRARIES ═══ -->
 <script src="https://typpo.github.io/spacekit/build/spacekit.js"></script>
-<script src="resource-systems-core.js?v=11"></script>
+<script src="resource-systems-core.js?v=12"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1445,12 +1413,12 @@ setInterval(updateStatusBar, 1000);
           html += '</div>';
         });
         content.innerHTML = html;
-        if (dot) { dot.style.background = '#4ade80'; dot.style.animation = 'dsn-pulse 2s infinite'; }
+        if (dot) { dot.style.background = '#4ade80'; }
       })
       .catch(function(e) {
         console.warn('[DSN] Poll failed:', e);
         var dot = document.getElementById('dsn-dot');
-        if (dot) { dot.style.background = '#ef4444'; dot.style.animation = 'dsn-pulse 1s infinite'; }
+        if (dot) { dot.style.background = '#ef4444'; }
       });
   }
 
@@ -1541,14 +1509,6 @@ if (RS && RS.enforceProLockOnLoad) RS.enforceProLockOnLoad(S.layers, PRO_LAYERS)
 initSolarSystem();
 renderSidebar();
 
-// Fade out loader
-setTimeout(function() {
-  var loader = document.getElementById('loader');
-  if (loader) {
-    loader.style.opacity = '0';
-    setTimeout(function() { loader.style.display = 'none'; }, 700);
-  }
-}, 1800);
 </script>
 
 <!-- SEO: crawlable body text + cross-site links -->

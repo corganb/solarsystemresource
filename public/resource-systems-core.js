@@ -403,29 +403,24 @@ RS.renderSolarSystem = function(viewer, options) {
   });
   celestialEntities['Moon'] = { entity: moonEntity, url: 'https://moonresource.com' };
 
-  // Sun  —  clamped to a symbolic distance so it stays inside Cesium's
-  // fog range. The real Sun is 150M km from Earth which is FAR beyond
-  // scene.fog's exponential opacity rolloff (density ~0.0002), so a
-  // billboard at real scale is effectively 100% fogged out and invisible.
-  // We keep the DIRECTION correct by normalizing the ICRF sun vector and
-  // scaling to a finite distance (default 20,000 km, overridable via
-  // options.sunDistance). This matches how NASA Eyes, SolarSystemScope
-  // and similar Cesium/Three.js solar viewers handle the scale mismatch.
-  var SUN_DISPLAY_DIST = options.sunDistance || 2e7;
+  // Sun  —  rendered at the REAL Earth-Sun distance (1 AU = 149.6 million
+  // km) computed from Cesium's Simon1994 ephemeris in the Earth-inertial
+  // frame and rotated into the Earth-fixed frame each tick. The billboard
+  // uses disableDepthTestDistance: Infinity so it draws on top of the
+  // globe and doesn't get clipped by the depth buffer at that range.
+  // scaleByDistance maps 1.5e11 m down to a 26px icon so the user sees
+  // a small but clearly positioned dot at the sunward horizon direction.
   var sunPosition = new Cesium.CallbackProperty(function() {
     var icrf = Cesium.Simon1994PlanetaryPositions.computeSunPositionInEarthInertialFrame(Cesium.JulianDate.now());
-    var fixed = RS.icrfToFixed(icrf);
-    var len = Cesium.Cartesian3.magnitude(fixed);
-    if (len === 0 || !isFinite(len)) return fixed;
-    return Cesium.Cartesian3.multiplyByScalar(fixed, SUN_DISPLAY_DIST / len, new Cesium.Cartesian3());
+    return RS.icrfToFixed(icrf);
   }, false);
   var sunEntity = viewer.entities.add({
     name: 'Sun', position: sunPosition,
-    // disableDepthTestDistance: Infinity means the billboard/label always draw
-    // on top of the globe regardless of depth buffer. Without this, the Sun
-    // (150M km away) ends up behind Earth in the depth test and disappears.
-    billboard: { image: RS.SUN_SVG, width: 50, height: 50, scaleByDistance: new Cesium.NearFarScalar(1e7,1.2,2e11,0.4), disableDepthTestDistance: Number.POSITIVE_INFINITY },
-    label: { text: 'Sun', font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#FFD54F'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(28,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e7,1,2e11,0.3), disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    // NearFarScalar is tuned for the real 1 AU distance: 70px up close
+    // (if the camera ever gets near it) down to ~26px at 1.5e11 m, which
+    // is the actual Earth-Sun range.
+    billboard: { image: RS.SUN_SVG, width: 50, height: 50, scaleByDistance: new Cesium.NearFarScalar(1e8, 1.4, 3e11, 0.52), disableDepthTestDistance: Number.POSITIVE_INFINITY },
+    label: { text: 'Sun', font: '11px "JetBrains Mono", monospace', fillColor: Cesium.Color.fromCssColorString('#FFD54F'), outlineColor: Cesium.Color.BLACK, outlineWidth: 3, style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(28,0), horizontalOrigin: Cesium.HorizontalOrigin.LEFT, scaleByDistance: new Cesium.NearFarScalar(1e8, 1.1, 3e11, 0.5), disableDepthTestDistance: Number.POSITIVE_INFINITY },
     description: '<b>The Sun</b><br>Type: G2V main-sequence star<br>Angular diameter: ~0.53\u00b0<br>Distance: ~149.6M km<br>Surface Temp: ~5,778 K',
   });
   celestialEntities['Sun'] = { entity: sunEntity, url: 'https://sunresource.net' };
