@@ -404,13 +404,21 @@ html, body {
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
-  .sidebar-left { width: 260px; transform: translateX(-100%); transition: transform 0.25s; }
+  .sidebar-left { width: min(260px, 82vw); transform: translateX(-100%); transition: transform 0.25s; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
   .sidebar-left.open { transform: translateX(0); }
-  .sb-toggle { display: flex; }
+  .sb-toggle { display: flex; align-items: center; justify-content: center; }
   .tb-center { display: none; }
   .tb-brand span.tb-subtitle { display: none; }
+  .tb-brand-mark { width: 22px; height: 22px; }
+  .tb-brand-mark svg { width: 22px; height: 22px; }
   .dsn-panel { display: none; }
   .tb-btn { padding: 5px 8px; font-size: 10px; }
+  .tb-footlinks { display: none !important; }
+  .topbar { padding: 0 10px; gap: 4px; }
+}
+@media (max-width: 420px) {
+  .topbar { height: 38px; }
+  .statusbar { font-size: 8.5px; gap: 10px; padding: 0 8px; }
 }
 </style>
 </head>
