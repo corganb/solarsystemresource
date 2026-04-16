@@ -871,7 +871,7 @@ function initSolarSystem() {
       // NOTE: out is the SAME array reference as sceneObjects['moons'] because
       // toggleLayer did `sceneObjects['moons'] = layerBuilders['moons']()`.
       // Pushing to out here automatically exposes the moons to the toggle machinery.
-      // Do NOT clear-and-copy — that would wipe the array we just populated.
+      // Do NOT clear-and-copy  -  that would wipe the array we just populated.
 
       // Async race: if the user toggled OFF while fetch was in flight, hide
       // everything we just created before the user sees it pop in.
@@ -1009,7 +1009,7 @@ function initSolarSystem() {
   };
 
   // ── LAYER BUILDER: Oort cloud (transparent spherical shell) ──
-  // The real Oort cloud is 2000-100000 AU — far outside the normal scene frustum.
+  // The real Oort cloud is 2000-100000 AU  -  far outside the normal scene frustum.
   // For visibility we render a translucent shell at 80 AU so users can see its
   // conceptual placement. Toast note clarifies.
   layerBuilders['oort'] = function() {
