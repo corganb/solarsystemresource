@@ -536,6 +536,21 @@ RS.renderAuthButton = function() {
   return '<button class="tb-btn" onclick="window.RS_toggleAuthModal()" title="Sign In" style="border-color:var(--accent-border);color:var(--accent)">Sign In</button>';
 };
 
+// Shared footer/nav links rendered in the topbar right section.
+// Called from each site's initTopBar wiring so any change propagates
+// to all 13 sites from a single source of truth.
+RS.renderFootLinks = function() {
+  var s = 'display:flex;gap:8px;margin-left:8px;font-size:9px;opacity:0.35';
+  var a = 'color:var(--t2,#a0a8b8);text-decoration:none';
+  return '<span class="tb-footlinks" style="' + s + '">' +
+    '<a href="https://instagram.com/resourcesystems" target="_blank" style="' + a + '">IG</a>' +
+    '<a href="https://x.com/resource_sys" target="_blank" style="' + a + '">X</a>' +
+    '<a href="/faq" style="' + a + '">FAQ</a>' +
+    '<a href="/privacy" style="' + a + '">Privacy</a>' +
+    '<a href="/terms" style="' + a + '">Terms</a>' +
+    '</span>';
+};
+
 // Auth modal
 RS.toggleAuthModal = function(siteName) {
   siteName = siteName || 'Resource Systems';
