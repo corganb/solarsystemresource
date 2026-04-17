@@ -536,6 +536,85 @@ RS.renderAuthButton = function() {
   return '<button class="tb-btn" onclick="window.RS_toggleAuthModal()" title="Sign In" style="border-color:var(--accent-border);color:var(--accent)">Sign In</button>';
 };
 
+// ═══ ANALYSIS PANEL ═══
+// Shared object-inspector panel rendered by RS.showAnalysisPanel(config).
+// Config shape: { name, type, image, fields: [{label, value}], desc, link }
+// Injected once into the DOM on first call; reused on subsequent calls.
+// Close via RS.hideAnalysisPanel() or the X button.
+
+RS._analysisPanelEl = null;
+
+RS._ensureAnalysisCSS = function() {
+  if (document.getElementById('rs-analysis-css')) return;
+  var s = document.createElement('style');
+  s.id = 'rs-analysis-css';
+  s.textContent = [
+    '#rs-analysis { position:fixed; right:16px; top:60px; width:320px; max-height:calc(100vh - 80px); overflow-y:auto; background:rgba(10,14,22,0.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:0; z-index:200; font-family:-apple-system,BlinkMacSystemFont,sans-serif; color:rgba(232,234,240,0.95); box-shadow:0 8px 40px rgba(0,0,0,0.5); transition:opacity 0.2s,transform 0.2s; }',
+    '#rs-analysis.hidden { opacity:0; pointer-events:none; transform:translateX(20px); }',
+    '#rs-analysis .ap-header { padding:14px 16px 10px; display:flex; gap:12px; align-items:flex-start; border-bottom:1px solid rgba(255,255,255,0.06); }',
+    '#rs-analysis .ap-img { width:64px; height:64px; border-radius:6px; object-fit:cover; background:rgba(255,255,255,0.04); flex-shrink:0; }',
+    '#rs-analysis .ap-img.placeholder { display:flex; align-items:center; justify-content:center; font-size:28px; color:rgba(255,255,255,0.15); }',
+    '#rs-analysis .ap-title { font-size:15px; font-weight:600; letter-spacing:0.02em; line-height:1.3; }',
+    '#rs-analysis .ap-type { font-size:9.5px; text-transform:uppercase; letter-spacing:0.1em; color:rgba(160,168,184,0.6); margin-top:2px; }',
+    '#rs-analysis .ap-close { position:absolute; top:10px; right:12px; background:none; border:none; color:rgba(255,255,255,0.4); font-size:18px; cursor:pointer; line-height:1; padding:4px; }',
+    '#rs-analysis .ap-close:hover { color:rgba(255,255,255,0.8); }',
+    '#rs-analysis .ap-fields { padding:10px 16px; }',
+    '#rs-analysis .ap-row { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px dashed rgba(255,255,255,0.04); font-size:11.5px; }',
+    '#rs-analysis .ap-row .ap-label { color:rgba(106,116,136,1); text-transform:uppercase; letter-spacing:0.06em; font-size:9.5px; }',
+    '#rs-analysis .ap-row .ap-val { color:rgba(200,210,228,0.9); text-align:right; max-width:60%; }',
+    '#rs-analysis .ap-desc { padding:8px 16px 14px; font-size:11.5px; color:rgba(160,172,200,0.65); line-height:1.7; }',
+    '#rs-analysis .ap-link { display:block; padding:10px 16px; border-top:1px solid rgba(255,255,255,0.06); font-size:11px; color:rgba(160,184,255,0.8); text-decoration:none; text-align:center; }',
+    '#rs-analysis .ap-link:hover { color:rgba(160,184,255,1); }',
+    '@media (max-width:768px) { #rs-analysis { right:8px; left:8px; width:auto; top:56px; max-height:calc(100vh - 70px); } }',
+  ].join('\n');
+  document.head.appendChild(s);
+};
+
+RS.showAnalysisPanel = function(config) {
+  RS._ensureAnalysisCSS();
+  var el = RS._analysisPanelEl;
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'rs-analysis';
+    document.body.appendChild(el);
+    RS._analysisPanelEl = el;
+  }
+
+  var imgHtml;
+  if (config.image) {
+    imgHtml = '<img class="ap-img" src="' + config.image + '" alt="' + (config.name || '') + '">';
+  } else {
+    var icon = config.icon || '\u2B50';
+    imgHtml = '<div class="ap-img placeholder">' + icon + '</div>';
+  }
+
+  var fieldsHtml = '';
+  if (config.fields && config.fields.length) {
+    fieldsHtml = '<div class="ap-fields">';
+    for (var i = 0; i < config.fields.length; i++) {
+      var f = config.fields[i];
+      fieldsHtml += '<div class="ap-row"><span class="ap-label">' + f.label + '</span><span class="ap-val">' + f.value + '</span></div>';
+    }
+    fieldsHtml += '</div>';
+  }
+
+  var descHtml = config.desc ? '<div class="ap-desc">' + config.desc + '</div>' : '';
+  var linkHtml = config.link ? '<a class="ap-link" href="' + config.link.url + '" target="_blank">' + config.link.text + '</a>' : '';
+
+  el.innerHTML =
+    '<button class="ap-close" onclick="RS.hideAnalysisPanel()">&times;</button>' +
+    '<div class="ap-header">' + imgHtml +
+    '<div><div class="ap-title">' + (config.name || 'Unknown') + '</div>' +
+    '<div class="ap-type">' + (config.type || '') + '</div></div></div>' +
+    fieldsHtml + descHtml + linkHtml;
+
+  el.classList.remove('hidden');
+};
+
+RS.hideAnalysisPanel = function() {
+  if (RS._analysisPanelEl) RS._analysisPanelEl.classList.add('hidden');
+};
+
 // ═══ SHARED TOPBAR RENDERER ═══
 // Builds the complete topbar HTML from a site key + display name.
 // Each site just needs <div id="rs-topbar"></div> and a call to
