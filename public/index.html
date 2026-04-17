@@ -719,6 +719,11 @@ function initSolarSystem() {
   }
 
   // Add a procedural point cloud via Spacekit.StaticParticles.
+  // The returned wrapper's _threeObj is tracked in _orbitingRings so the
+  // animation loop can rotate it at the correct Keplerian angular velocity
+  // for the mean semi-major axis of the ring.
+  var _orbitingRings = [];  // { mesh, periodDays }
+
   function buildRing(id, count, rMin, rMax, zJitter, color, size) {
     var pts = [];
     for (var i = 0; i < count; i++) {
@@ -732,8 +737,13 @@ function initSolarSystem() {
         defaultColor: color,
         size: size
       }, viz);
-      // StaticParticles exposes get3jsObjects() returning [pointsMesh]
       var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
+      if (mesh) {
+        // Kepler: period = a^1.5 years for a in AU
+        var meanA = (rMin + rMax) / 2;
+        var periodDays = Math.pow(meanA, 1.5) * 365.25;
+        _orbitingRings.push({ mesh: mesh, periodDays: periodDays });
+      }
       return mesh ? makeThreeWrapper(mesh) : null;
     } catch(e) {
       console.warn('[SSR] buildRing failed for', id, e);
@@ -755,6 +765,11 @@ function initSolarSystem() {
     try {
       var sp = new Spacekit.StaticParticles(id, pts, { defaultColor: color, size: size }, viz);
       var mesh = sp.get3jsObjects && sp.get3jsObjects()[0];
+      if (mesh) {
+        // Trojans orbit at Jupiter's period (co-orbital)
+        var periodDays = Math.pow(a, 1.5) * 365.25;
+        _orbitingRings.push({ mesh: mesh, periodDays: periodDays });
+      }
       return mesh ? makeThreeWrapper(mesh) : null;
     } catch(e) {
       console.warn('[SSR] cluster failed for', id, e);
@@ -1386,6 +1401,33 @@ function updateStatusBar() {
   }
 }
 setInterval(updateStatusBar, 1000);
+
+// ═══ ORBITING PARTICLE RINGS ═══
+// Rotate each tracked particle mesh (asteroid belt, NEOs, Trojans, Kuiper)
+// at the correct Keplerian angular velocity relative to spacekit's Julian
+// Date clock. jdPerSecond=1 means 1 Julian day per real second. Each ring
+// rotates by (2*PI / periodDays) * jdPerSecond per real second. We use
+// requestAnimationFrame for smooth motion.
+(function animateRings() {
+  var lastJd = null;
+  function tick() {
+    requestAnimationFrame(tick);
+    if (!S.viz || !S.viz.getJd || !_orbitingRings.length) return;
+    var jd = S.viz.getJd();
+    if (lastJd === null) { lastJd = jd; return; }
+    var dJd = jd - lastJd;
+    lastJd = jd;
+    if (dJd === 0 || !isFinite(dJd)) return;
+    for (var i = 0; i < _orbitingRings.length; i++) {
+      var ring = _orbitingRings[i];
+      if (!ring.mesh || !ring.mesh.visible) continue;
+      // Rotation angle = (elapsed days / period days) * 2*PI
+      // spacekit uses Z-up so rotation is around Z axis
+      ring.mesh.rotation.z += (dJd / ring.periodDays) * Math.PI * 2;
+    }
+  }
+  tick();
+})();
 
 // ═══ DSN LIVE PANEL ═══
 // Polls the shared Supabase edge function that all Resource Systems sites use.
