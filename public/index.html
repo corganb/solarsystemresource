@@ -1559,6 +1559,94 @@ if (RS && RS.enforceProLockOnLoad) RS.enforceProLockOnLoad(S.layers, PRO_LAYERS)
 initSolarSystem();
 renderSidebar();
 
+// ═══ CLICK-TO-INSPECT FOR SPACEKIT OBJECTS ═══
+// Spacekit labels are HTML DOM elements overlaid on the 3D canvas. We add
+// click handlers to every label so clicking a planet/moon/spacecraft name
+// opens the shared RS.showAnalysisPanel() with real data.
+(function wireSpacekitClicks() {
+  var PLANET_ANALYSIS = {
+    Sun:     { type: 'G2V main-sequence star', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg/220px-The_Sun_by_the_Atmospheric_Imaging_Assembly_of_NASA%27s_Solar_Dynamics_Observatory_-_20100819.jpg', desc: 'Contains 99.86% of Solar System mass. Core temp 15.7 million K, surface 5,778 K.', fields: [{label:'Radius',value:'695,700 km'},{label:'Mass',value:'1.989 x 10\u00B3\u2070 kg'},{label:'Spectral type',value:'G2V'},{label:'Age',value:'4.6 Gyr'}], link:{url:'https://sunresource.net',text:'SunResource'} },
+    Mercury: { type: 'Terrestrial planet', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_true_color.jpg/220px-Mercury_in_true_color.jpg', desc: 'Smallest planet, nearest to Sun. 3:2 spin-orbit resonance.', fields: [{label:'Radius',value:'2,440 km'},{label:'Orbit',value:'0.387 AU'},{label:'Period',value:'88 days'}], link:{url:'https://mercuryresource.net',text:'MercuryResource'} },
+    Venus:   { type: 'Terrestrial planet', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Venus_from_Mariner_10.jpg/220px-Venus_from_Mariner_10.jpg', desc: 'Hottest planet (462 C). Runaway greenhouse, retrograde rotation.', fields: [{label:'Radius',value:'6,052 km'},{label:'Orbit',value:'0.723 AU'},{label:'Atmosphere',value:'96.5% CO\u2082'}], link:{url:'https://venusresource.net',text:'VenusResource'} },
+    Earth:   { type: 'Terrestrial planet', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/The_Blue_Marble_%28remastered%29.jpg/220px-The_Blue_Marble_%28remastered%29.jpg', desc: 'Only known planet with life. 71% ocean surface, N2/O2 atmosphere.', fields: [{label:'Radius',value:'6,371 km'},{label:'Orbit',value:'1.000 AU'},{label:'Moons',value:'1 (Luna)'}], link:{url:'https://terraresource.net',text:'TerraResource'} },
+    Mars:    { type: 'Terrestrial planet', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/OSIRIS_Mars_true_color.jpg/220px-OSIRIS_Mars_true_color.jpg', desc: 'The Red Planet. Olympus Mons is the tallest volcano, Valles Marineris the largest canyon in the Solar System.', fields: [{label:'Radius',value:'3,390 km'},{label:'Orbit',value:'1.524 AU'},{label:'Moons',value:'2 (Phobos, Deimos)'}], link:{url:'https://marsresource.net',text:'MarsResource'} },
+    Jupiter: { type: 'Gas giant', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Jupiter_New_Horizons.jpg/220px-Jupiter_New_Horizons.jpg', desc: 'Largest planet. Mass 2.5x all other planets combined. Great Red Spot storm 400+ years old.', fields: [{label:'Radius',value:'69,911 km'},{label:'Orbit',value:'5.20 AU'},{label:'Moons',value:'95 known'}], link:{url:'https://jupiterresource.net',text:'JupiterResource'} },
+    Saturn:  { type: 'Gas giant', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/220px-Saturn_during_Equinox.jpg', desc: 'Famous ring system spanning 282,000 km. Least dense planet. Titan has a dense atmosphere.', fields: [{label:'Radius',value:'58,232 km'},{label:'Orbit',value:'9.58 AU'},{label:'Moons',value:'146 known'}], link:{url:'https://saturnresource.net',text:'SaturnResource'} },
+    Uranus:  { type: 'Ice giant', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Uranus2.jpg/220px-Uranus2.jpg', desc: '97.77 deg axial tilt (rolls on its side). Blue-green from atmospheric methane.', fields: [{label:'Radius',value:'25,362 km'},{label:'Orbit',value:'19.2 AU'},{label:'Moons',value:'28 known'}], link:{url:'https://uranusresource.net',text:'UranusResource'} },
+    Neptune: { type: 'Ice giant', image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg/220px-Neptune_-_Voyager_2_%2829347980845%29_flatten_crop.jpg', desc: 'Most distant planet. Strongest sustained winds (2,100 km/h). Discovered by math prediction.', fields: [{label:'Radius',value:'24,622 km'},{label:'Orbit',value:'30.05 AU'},{label:'Moons',value:'16 known'}], link:{url:'https://neptuneresource.net',text:'NeptuneResource'} },
+  };
+
+  // Poll for labels (spacekit creates them asynchronously after scene loads)
+  function wireLabels() {
+    var labels = document.querySelectorAll('[data-ssr-layer]');
+    if (labels.length === 0) { setTimeout(wireLabels, 2000); return; }
+    labels.forEach(function(el) {
+      if (el._ssrClickWired) return;
+      el._ssrClickWired = true;
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', function(ev) {
+        ev.stopPropagation();
+        // Extract the object name from the label text
+        var name = el.textContent.trim().split('\n')[0].trim();
+        // Check planets first
+        var data = PLANET_ANALYSIS[name];
+        if (data) {
+          RS.showAnalysisPanel({ name: name, type: data.type, image: data.image, desc: data.desc, fields: data.fields, link: data.link });
+          return;
+        }
+        // For non-planet objects (moons, spacecraft, comets), show basic info
+        var layer = el.getAttribute('data-ssr-layer') || '';
+        RS.showAnalysisPanel({
+          name: name,
+          type: layer.replace(/-/g, ' '),
+          desc: 'Click the sibling Resource Systems site for detailed analysis.',
+          icon: '\u2B50',
+        });
+      });
+    });
+    // Re-poll to catch newly created labels (e.g. when layers are toggled on)
+    setTimeout(wireLabels, 5000);
+  }
+  setTimeout(wireLabels, 3000);
+
+  // Also make the container clickable for canvas-level picks
+  var container = document.getElementById('main-container');
+  if (container) {
+    container.addEventListener('click', function(ev) {
+      // Check if a label was already clicked (event propagation)
+      if (ev.target.hasAttribute && ev.target.hasAttribute('data-ssr-layer')) return;
+      // For canvas clicks, do a screen-space proximity check against known objects
+      if (!S.viz || !sceneObjects['planets']) return;
+      var rect = container.getBoundingClientRect();
+      var mx = ev.clientX - rect.left;
+      var my = ev.clientY - rect.top;
+      var cam = S.viz.getViewer().camera;
+      var closest = null, closestDist = 40; // 40px threshold
+      sceneObjects['planets'].forEach(function(p) {
+        if (!p || typeof p.get3jsObjects !== 'function') return;
+        var objs = p.get3jsObjects();
+        if (!objs || !objs[0]) return;
+        var pos = new Spacekit.THREE.Vector3();
+        objs[0].getWorldPosition(pos);
+        pos.project(cam);
+        var sx = (pos.x * 0.5 + 0.5) * rect.width;
+        var sy = (-pos.y * 0.5 + 0.5) * rect.height;
+        var dist = Math.sqrt((mx - sx) * (mx - sx) + (my - sy) * (my - sy));
+        if (dist < closestDist) {
+          closestDist = dist;
+          var label = '';
+          try { label = p._label ? p._label.textContent.trim() : (p.id || ''); } catch(e) {}
+          closest = label || 'Unknown';
+        }
+      });
+      if (closest && PLANET_ANALYSIS[closest]) {
+        var d = PLANET_ANALYSIS[closest];
+        RS.showAnalysisPanel({ name: closest, type: d.type, image: d.image, desc: d.desc, fields: d.fields, link: d.link });
+      }
+    });
+  }
+})();
+
 </script>
 
 <!-- SEO: crawlable body text + cross-site links -->
