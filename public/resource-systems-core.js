@@ -536,6 +536,50 @@ RS.renderAuthButton = function() {
   return '<button class="tb-btn" onclick="window.RS_toggleAuthModal()" title="Sign In" style="border-color:var(--accent-border);color:var(--accent)">Sign In</button>';
 };
 
+// ═══ SHARED TOPBAR RENDERER ═══
+// Builds the complete topbar HTML from a site key + display name.
+// Each site just needs <div id="rs-topbar"></div> and a call to
+// RS.renderTopBar('mercury', 'MERCURY RESOURCE') during init.
+// Includes brand mark, planet nav, auth button, footer links,
+// and a sidebar toggle button visible at ALL screen sizes.
+RS.renderTopBar = function(siteKey, siteName) {
+  var mark = RS.BRAND_MARKS[siteKey] || '';
+  var nav = '';
+  try { nav = RS.renderPlanetNav(siteKey); } catch(e) {}
+  var auth = '';
+  try { auth = RS.renderAuthButton(); } catch(e) {}
+  var foot = '';
+  try { foot = RS.renderFootLinks(); } catch(e) {}
+  return '<div style="flex-shrink:0;margin-right:12px;display:flex;align-items:center">' +
+    '<button id="rs-sidebar-toggle" style="background:none;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:rgba(255,255,255,0.7);width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0" title="Toggle sidebar">&#9776;</button>' +
+    '<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="window.location.reload()">' +
+    '<div style="width:26px;height:26px;flex-shrink:0">' + mark + '</div>' +
+    '<div style="display:flex;flex-direction:column;line-height:1.15;font-size:13px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase">' +
+    siteName + '<br><span style="font-size:8.5px;color:rgba(106,116,136,1);font-weight:400;letter-spacing:0.08em;text-transform:none">a Corgan Studio intelligence platform</span></div>' +
+    '</div></div>' +
+    '<div style="flex:1;display:flex;justify-content:center"><div class="planet-nav" style="display:flex;gap:3px">' + nav + '</div></div>' +
+    '<div style="position:absolute;right:20px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:6px">' + auth + foot + '</div>';
+};
+
+// Wire the sidebar toggle button after rendering the topbar.
+// Looks for #rs-sidebar-toggle and toggles .sidebar-left or .sidebar.
+RS.wireTopBar = function() {
+  var btn = document.getElementById('rs-sidebar-toggle');
+  if (!btn) return;
+  btn.addEventListener('click', function() {
+    var sb = document.querySelector('.sidebar-left') || document.querySelector('.sidebar');
+    if (!sb) return;
+    if (sb.classList.contains('shut')) {
+      sb.classList.remove('shut');
+    } else if (sb.classList.contains('open')) {
+      sb.classList.remove('open');
+    } else {
+      // Desktop toggle: use 'shut' class to collapse
+      sb.classList.toggle('shut');
+    }
+  });
+};
+
 // Shared footer/nav links rendered in the topbar right section.
 // Called from each site's initTopBar wiring so any change propagates
 // to all 13 sites from a single source of truth.
