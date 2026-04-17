@@ -527,13 +527,13 @@ var LAYERS = [
   { id: 'historical-missions', title: 'Historical Missions', category: 'Spacecraft', source: 'nasa', desc: 'Completed deep space missions',             visible: false },
 
   // Small Bodies (researcher locked)
-  { id: 'asteroid-belt', title: 'Asteroid Belt',      category: 'Small Bodies', source: 'jpl', desc: 'Main belt between Mars and Jupiter', visible: false, proLock: true },
-  { id: 'neos',          title: 'Near-Earth Objects', category: 'Small Bodies', source: 'jpl', desc: '~35,000 NEOs tracked by JPL',        visible: false, proLock: true },
-  { id: 'comets',        title: 'Comets',             category: 'Small Bodies', source: 'jpl', desc: 'Short and long-period comets',        visible: false, proLock: true },
-  { id: 'trojans',       title: 'Trojan Asteroids',   category: 'Small Bodies', source: 'jpl', desc: 'Jupiter L4/L5 co-orbital clusters',  visible: false, proLock: true },
+  { id: 'asteroid-belt', title: 'Asteroid Belt',      category: 'Small Bodies', source: 'jpl', desc: 'Main belt between Mars and Jupiter', visible: true },
+  { id: 'neos',          title: 'Near-Earth Objects', category: 'Small Bodies', source: 'jpl', desc: '~35,000 NEOs tracked by JPL',        visible: true, proLock: true },
+  { id: 'comets',        title: 'Comets',             category: 'Small Bodies', source: 'jpl', desc: 'Short and long-period comets',        visible: true },
+  { id: 'trojans',       title: 'Trojan Asteroids',   category: 'Small Bodies', source: 'jpl', desc: 'Jupiter L4/L5 co-orbital clusters',  visible: true, proLock: true },
 
   // Advanced (researcher locked)
-  { id: 'kuiper',      title: 'Kuiper Belt',    category: 'Advanced', source: 'jpl', desc: 'Trans-Neptunian disc (~30-55 AU)', visible: false, proLock: true },
+  { id: 'kuiper',      title: 'Kuiper Belt',    category: 'Advanced', source: 'jpl', desc: 'Trans-Neptunian disc (~30-55 AU)', visible: true, proLock: true },
   { id: 'oort',        title: 'Oort Cloud',     category: 'Advanced', source: 'jpl', desc: 'Theoretical comet reservoir',      visible: false, proLock: true },
   { id: 'heliosphere', title: 'Heliosphere',    category: 'Advanced', source: 'nasa', desc: 'Solar wind / interstellar boundary', visible: false, proLock: true },
 
@@ -942,13 +942,13 @@ function initSolarSystem() {
   // ── LAYER BUILDER: asteroid belt (procedural) ──
   // Main belt distribution: 2.1-3.3 AU. 2000 points is enough to read as a ring.
   layerBuilders['asteroid-belt'] = function() {
-    var wrap = buildRing('asteroid-belt', 2000, 2.1, 3.3, 0.2, '#a88868', 1.2);
+    var wrap = buildRing('asteroid-belt', 5000, 2.1, 3.3, 0.25, '#d0a878', 3.5);
     return wrap ? [wrap] : [];
   };
 
   // ── LAYER BUILDER: NEOs (procedural, near 1 AU) ──
   layerBuilders['neos'] = function() {
-    var wrap = buildRing('neos', 400, 0.8, 1.5, 0.15, '#ff6666', 1.4);
+    var wrap = buildRing('neos', 800, 0.8, 1.5, 0.18, '#ff8888', 3.5);
     return wrap ? [wrap] : [];
   };
 
@@ -981,7 +981,7 @@ function initSolarSystem() {
           textureUrl: FUZZY_SPRITE,
           theme: { color: c.color },
           labelText: c.label,
-          scale: [0.8, 0.8, 0.8]
+          scale: [1.5, 1.5, 1.5]
         });
         tagLabel(obj, 'comets');
         out.push(obj);
@@ -995,8 +995,8 @@ function initSolarSystem() {
     var out = [];
     var a = JUPITER_J2000.a;
     var maNow = JUPITER_J2000.ma; // Approximate; we use J2000 anchoring for visual grouping only
-    var l4 = buildCoOrbitalCluster('trojans-l4', 400, a, maNow, 60, 8, 0.35, '#c8a070', 1.3);
-    var l5 = buildCoOrbitalCluster('trojans-l5', 400, a, maNow, -60, 8, 0.35, '#c8a070', 1.3);
+    var l4 = buildCoOrbitalCluster('trojans-l4', 800, a, maNow, 60, 8, 0.35, '#e0c090', 3.0);
+    var l5 = buildCoOrbitalCluster('trojans-l5', 800, a, maNow, -60, 8, 0.35, '#e0c090', 3.0);
     if (l4) out.push(l4);
     if (l5) out.push(l5);
     return out;
@@ -1004,7 +1004,7 @@ function initSolarSystem() {
 
   // ── LAYER BUILDER: Kuiper Belt (procedural, 30-55 AU) ──
   layerBuilders['kuiper'] = function() {
-    var wrap = buildRing('kuiper', 1500, 30, 55, 2.5, '#9898b8', 1.4);
+    var wrap = buildRing('kuiper', 3000, 30, 55, 3.0, '#b0b0d8', 3.0);
     return wrap ? [wrap] : [];
   };
 
@@ -1016,7 +1016,7 @@ function initSolarSystem() {
     try {
       var geo = new THREE.SphereGeometry(80, 48, 24);
       var mat = new THREE.MeshBasicMaterial({
-        color: 0x6688cc,
+        color: 0x8899dd,
         transparent: true,
         opacity: 0.08,
         side: THREE.BackSide,
