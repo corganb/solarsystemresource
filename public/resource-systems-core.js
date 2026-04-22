@@ -11,7 +11,14 @@
 var RS = {
   SUPABASE_URL: 'https://pxocavaczfjcpvqeiznt.supabase.co',
   SUPABASE_ANON_KEY: 'sb_publishable_1IZ6cL3vvPdAc1f8u2ah6w_-txoo_VL',
-  VERSION: '1.1.0',
+  VERSION: '1.2.0',
+};
+
+// HTML sanitizer: escapes <, >, &, ", ' to prevent XSS when
+// inserting user-derived data (emails, names, descriptions) via innerHTML.
+RS.esc = function(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 };
 
 // ═══ DOMAIN REGISTRY ═══
@@ -72,7 +79,19 @@ RS.generateBrandMark = function(siteKey) {
 // ═══ SUPABASE AUTH ═══
 var sbClient = null;
 RS.authUser = null;
-RS.userTier = 'free';
+// Tier is stored in a closure variable so it can't be trivially overwritten
+// from the browser console. RS.userTier is a getter; RS._setTier is the
+// only way to change it (called from fetchTier and signout).
+var _tier = 'free';
+Object.defineProperty(RS, 'userTier', {
+  get: function() { return _tier; },
+  set: function() { /* ignore direct assignment attempts */ },
+  configurable: false
+});
+RS._setTier = function(t) {
+  var valid = ['free','researcher','pro','team','enterprise'];
+  _tier = (valid.indexOf(t) !== -1) ? t : 'free';
+};
 var _supabaseLoading = false;
 
 RS.loadSupabase = function() {
@@ -115,7 +134,7 @@ RS.checkSession = async function(onAuth) {
         await RS.fetchTier();
       } else {
         RS.authUser = null;
-        RS.userTier = 'free';
+        RS._setTier('free');
       }
       if (onAuth) onAuth();
     });
@@ -126,8 +145,8 @@ RS.fetchTier = async function() {
   if (!sbClient || !RS.authUser) return;
   try {
     var result = await sbClient.from('profiles').select('tier').eq('id', RS.authUser.id).single();
-    if (result.data) RS.userTier = result.data.tier || 'free';
-  } catch(e) { RS.userTier = 'free'; }
+    if (result.data) RS._setTier(result.data.tier || 'free');
+  } catch(e) { RS._setTier('free'); }
 };
 
 RS.isProUser = function() {
@@ -158,7 +177,7 @@ RS.signOut = async function() {
   if (!sbClient) return;
   await sbClient.auth.signOut();
   RS.authUser = null;
-  RS.userTier = 'free';
+  RS._setTier('free');
 };
 
 // ═══ PRICING ═══
@@ -530,7 +549,7 @@ RS.renderAuthButton = function() {
   if (RS.authUser) {
     var tier = RS.userTier.toUpperCase();
     var initial = (RS.authUser.email || 'U')[0].toUpperCase();
-    return '<button class="tb-btn" onclick="window.RS_toggleAccountMenu()" title="Signed in as ' + RS.authUser.email + '" style="border-color:var(--accent-border);color:var(--accent)">' +
+    return '<button class="tb-btn" onclick="window.RS_toggleAccountMenu()" title="Signed in as ' + RS.esc(RS.authUser.email) + '" style="border-color:var(--accent-border);color:var(--accent)">' +
       '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#000;font-size:10px;font-weight:600;text-align:center;line-height:18px">' + initial + '</span> ' + tier + '</button>';
   }
   return '<button class="tb-btn" onclick="window.RS_toggleAuthModal()" title="Sign In" style="border-color:var(--accent-border);color:var(--accent)">Sign In</button>';
@@ -582,7 +601,7 @@ RS.showAnalysisPanel = function(config) {
 
   var imgHtml;
   if (config.image) {
-    imgHtml = '<img class="ap-img" src="' + config.image + '" alt="' + (config.name || '') + '">';
+    imgHtml = '<img class="ap-img" src="' + config.image + '" alt="' + RS.esc(config.name || '') + '">';
   } else {
     var icon = config.icon || '\u2B50';
     imgHtml = '<div class="ap-img placeholder">' + icon + '</div>';
@@ -593,19 +612,19 @@ RS.showAnalysisPanel = function(config) {
     fieldsHtml = '<div class="ap-fields">';
     for (var i = 0; i < config.fields.length; i++) {
       var f = config.fields[i];
-      fieldsHtml += '<div class="ap-row"><span class="ap-label">' + f.label + '</span><span class="ap-val">' + f.value + '</span></div>';
+      fieldsHtml += '<div class="ap-row"><span class="ap-label">' + RS.esc(f.label) + '</span><span class="ap-val">' + RS.esc(f.value) + '</span></div>';
     }
     fieldsHtml += '</div>';
   }
 
-  var descHtml = config.desc ? '<div class="ap-desc">' + config.desc + '</div>' : '';
+  var descHtml = config.desc ? '<div class="ap-desc">' + RS.esc(config.desc) + '</div>' : '';
   var linkHtml = config.link ? '<a class="ap-link" href="' + config.link.url + '" target="_blank">' + config.link.text + '</a>' : '';
 
   el.innerHTML =
     '<button class="ap-close" onclick="RS.hideAnalysisPanel()">&times;</button>' +
     '<div class="ap-header">' + imgHtml +
-    '<div><div class="ap-title">' + (config.name || 'Unknown') + '</div>' +
-    '<div class="ap-type">' + (config.type || '') + '</div></div></div>' +
+    '<div><div class="ap-title">' + RS.esc(config.name || 'Unknown') + '</div>' +
+    '<div class="ap-type">' + RS.esc(config.type || '') + '</div></div></div>' +
     fieldsHtml + descHtml + linkHtml;
 
   el.classList.remove('hidden');
@@ -716,7 +735,7 @@ RS.toggleAccountMenu = function() {
   var tierColor = RS.isProUser() ? 'var(--accent)' : 'var(--t4)';
   menu.innerHTML =
     '<div style="padding:10px 16px;border-bottom:1px solid var(--b1)">' +
-      '<div style="font-size:13px;color:var(--t1);font-weight:500">' + RS.authUser.email + '</div>' +
+      '<div style="font-size:13px;color:var(--t1);font-weight:500">' + RS.esc(RS.authUser.email) + '</div>' +
       '<div style="font-size:11px;color:' + tierColor + ';margin-top:2px">' + tier + ' Plan</div>' +
     '</div>' +
     '<button onclick="window.RS_toggleAccountMenu();window.RS_togglePricing()" style="display:block;width:100%;text-align:left;padding:8px 16px;background:none;border:none;color:var(--t2);font-size:12px;cursor:pointer;font-family:inherit" onmouseover="this.style.background=\'rgba(255,255,255,0.04)\'" onmouseout="this.style.background=\'none\'">' +
@@ -1051,7 +1070,7 @@ global.RS = RS;
 // ═══ SUBSCRIBER LOCK SYSTEM v1.2 ═══
 RS.TIERS = { free: 0, researcher: 1, pro: 1, team: 2, enterprise: 3 };
 RS.FREE_LAYER_LIMIT = 3;
-RS.userTier = RS.userTier || 'free';
+// tier already initialized via closure
 
 RS.isProUser = function() {
   var t = RS.userTier || 'free';
