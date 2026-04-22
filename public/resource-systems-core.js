@@ -688,7 +688,6 @@ RS.renderFootLinks = function() {
     '<a href="https://instagram.com/resourcesystems" target="_blank" style="' + a + '">IG</a>' +
     '<a href="https://x.com/resource_sys" target="_blank" style="' + a + '">X</a>' +
     '<a href="/faq" style="' + a + '">FAQ</a>' +
-    '<a href="/blog" style="' + a + '">Blog</a>' +
     '<a href="/privacy" style="' + a + '">Privacy</a>' +
     '<a href="/terms" style="' + a + '">Terms</a>' +
     '</span>';
