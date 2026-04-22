@@ -1594,12 +1594,30 @@ renderSidebar();
           RS.showAnalysisPanel({ name: name, type: data.type, image: data.image, desc: data.desc, fields: data.fields, link: data.link });
           return;
         }
-        // For non-planet objects (moons, spacecraft, comets), show basic info
+        // Spacecraft + comet analysis data
+        var SC_DATA = {
+          'Voyager 1': { type:'Active spacecraft (NASA)', desc:'Launched 1977. Farthest human-made object, now in interstellar space (~24 billion km from Sun). Still transmitting via DSN.', fields:[{label:'Launch',value:'1977-09-05'},{label:'Distance',value:'~160 AU'},{label:'Speed',value:'17.0 km/s'},{label:'Status',value:'Interstellar space'}] },
+          'Voyager 2': { type:'Active spacecraft (NASA)', desc:'Launched 1977. Only spacecraft to visit Uranus and Neptune. Entered interstellar space 2018.', fields:[{label:'Launch',value:'1977-08-20'},{label:'Distance',value:'~135 AU'},{label:'Flybys',value:'Jupiter, Saturn, Uranus, Neptune'}] },
+          'New Horizons': { type:'Active spacecraft (NASA)', desc:'Pluto flyby 2015, Arrokoth flyby 2019. Now in the Kuiper Belt heading outward.', fields:[{label:'Launch',value:'2006-01-19'},{label:'Pluto flyby',value:'2015-07-14'},{label:'Distance',value:'~60 AU'}], link:{url:'https://plutoresource.net',text:'PlutoResource'} },
+          'Juno': { type:'Active spacecraft (NASA)', desc:'Jupiter polar orbiter since 2016. Studying composition, gravity, magnetic field.', fields:[{label:'Launch',value:'2011-08-05'},{label:'Orbit',value:'53-day polar'},{label:'Periapsis',value:'~4,200 km alt'}], link:{url:'https://jupiterresource.net',text:'JupiterResource'} },
+          'Parker Solar Probe': { type:'Active spacecraft (NASA)', desc:'Closest approach to Sun. Speed record holder (635k+ km/h).', fields:[{label:'Launch',value:'2018-08-12'},{label:'Perihelion',value:'6.16 M km'},{label:'Speed',value:'635,266 km/h'}], link:{url:'https://sunresource.net',text:'SunResource'} },
+          'BepiColombo': { type:'Active spacecraft (ESA/JAXA)', desc:'En route to Mercury. Dual orbiter (MPO + Mio). Orbit insertion late 2026.', fields:[{label:'Launch',value:'2018-10-20'},{label:'Arrival',value:'Late 2026'}], link:{url:'https://mercuryresource.net',text:'MercuryResource'} },
+          'Europa Clipper': { type:'Future mission (NASA)', desc:'Launched 2024, arriving Jupiter 2030. ~50 Europa flybys planned.', fields:[{label:'Launch',value:'2024-10-14'},{label:'Arrival',value:'2030'},{label:'Target',value:'Europa'}], link:{url:'https://jupiterresource.net',text:'JupiterResource'} },
+          'JUICE': { type:'Future mission (ESA)', desc:'Jupiter Icy Moons Explorer. Launched 2023, arriving 2031. Will orbit Ganymede.', fields:[{label:'Launch',value:'2023-04-14'},{label:'Arrival',value:'2031'},{label:'Target',value:'Ganymede'}] },
+          '1P/Halley': { type:'Short-period comet', desc:'Most famous comet. Visible from Earth every ~76 years. Next perihelion 2061.', fields:[{label:'Period',value:'75.3 years'},{label:'Last perihelion',value:'1986'},{label:'Next',value:'2061'}] },
+          '67P/Churyumov-Gerasimenko': { type:'Short-period comet', desc:'Target of ESA Rosetta mission. First comet landing (Philae, 2014).', fields:[{label:'Period',value:'6.45 years'},{label:'Rosetta arrival',value:'2014'},{label:'Shape',value:'Rubber duck (bilobed)'}] },
+        };
+        var scInfo = SC_DATA[name];
+        if (scInfo) {
+          RS.showAnalysisPanel({ name:name, type:scInfo.type, desc:scInfo.desc, fields:scInfo.fields, link:scInfo.link, icon:'\uD83D\uDE80' });
+          return;
+        }
+        // Generic fallback
         var layer = el.getAttribute('data-ssr-layer') || '';
         RS.showAnalysisPanel({
           name: name,
           type: layer.replace(/-/g, ' '),
-          desc: 'Click the sibling Resource Systems site for detailed analysis.',
+          desc: 'Toggle the corresponding Resource Systems site for detailed analysis.',
           icon: '\u2B50',
         });
       });
