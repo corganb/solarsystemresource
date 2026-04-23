@@ -422,7 +422,7 @@ RS.renderSolarSystem = function(viewer, options) {
   });
   celestialEntities['Moon'] = { entity: moonEntity, url: 'https://moonresource.com' };
 
-  // Sun  —  rendered at the REAL Earth-Sun distance (1 AU = 149.6 million
+  // Sun - rendered at the REAL Earth-Sun distance (1 AU = 149.6 million
   // km) computed from Cesium's Simon1994 ephemeris in the Earth-inertial
   // frame and rotated into the Earth-fixed frame each tick. The billboard
   // uses disableDepthTestDistance: Infinity so it draws on top of the
@@ -444,7 +444,7 @@ RS.renderSolarSystem = function(viewer, options) {
   });
   celestialEntities['Sun'] = { entity: sunEntity, url: 'https://sunresource.net' };
 
-  // Planets (unchanged — keeping real scale positions for now; only Sun has
+  // Planets (unchanged - keeping real scale positions for now; only Sun has
   // been reported as invisible, and clamping planets could affect existing
   // planet-related features on Terra that depend on real distance)
   for (var i = 0; i < RS.PLANETS_DATA.length; i++) {
