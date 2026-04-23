@@ -3,7 +3,7 @@
 ## Site
 - URL: https://solarsystemresource.com
 - Repo: https://github.com/corganb/solarsystemresource
-- Host: Cloudflare Pages (auto-deploys from `main`)
+- Host: Cloudflare Pages (manual deploy - Pages project is NOT git-connected)
 - Cloudflare Pages project name: `solarsystemresource-site`
 - Supabase project: `pxocavaczfjcpvqeiznt` (shared across all sibling sites)
 - Engine: Spacekit (orbital simulation library by typpo), not Three.js directly
@@ -39,7 +39,11 @@
 - Planets draw via Spacekit's built-in ephemeris, not custom positions
 
 ## Deploy
-Cloudflare Pages auto-deploys on push to `main`. Manual override:
+Pages project is NOT git-connected; push to main does NOT auto-deploy. Run:
+```
+wrangler pages deploy public --project-name=solarsystemresource-site --branch=main
+```
+Or run `~/Documents/resource-systems-workspace/scripts/deploy_sites.sh` to deploy all 10 siblings in one pass. Manual override:
 ```
 wrangler pages deploy public --project-name=solarsystemresource-site
 ```
