@@ -1,0 +1,29 @@
+{
+  "name": "SolarSystemResource",
+  "short_name": "SolarSystem",
+  "description": "SolarSystemResource by Corgan Studio",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0a0a1f",
+  "background_color": "#050510",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
