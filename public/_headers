@@ -4,7 +4,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=15552000
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://typpo.github.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://terraresource.net; connect-src 'self' https://pxocavaczfjcpvqeiznt.supabase.co https://terraresource.net; frame-src 'none'; object-src 'none'; base-uri 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://typpo.github.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://terraresource.net https://typpo.github.io; connect-src 'self' https://pxocavaczfjcpvqeiznt.supabase.co https://terraresource.net https://typpo.github.io; frame-src 'none'; object-src 'none'; base-uri 'self';
 
 /*.jpg
   Cache-Control: public, max-age=604800
