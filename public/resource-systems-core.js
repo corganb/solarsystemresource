@@ -193,13 +193,14 @@ RS.fetchPricing = async function() {
 
 // ═══ SOLAR SYSTEM EPHEMERIS ═══
 RS.PLANETS_DATA = [
-  { name: 'Mercury', color: '#a0a0a0', diam: 4879,   a: 0.387, e: 0.2056, i: 7.00,  L: 252.25, wBar: 77.46,  Om: 48.33,  url: 'https://mercuryresource.net', desc: 'Closest to the Sun · extreme temperatures · 4,879 km' },
-  { name: 'Venus',   color: '#e8dcc0', diam: 12104,  a: 0.723, e: 0.0068, i: 3.39,  L: 181.98, wBar: 131.53, Om: 76.68,  url: 'https://venusresource.net',   desc: 'Hottest planet · retrograde rotation · 12,104 km' },
-  { name: 'Mars',    color: '#d2694a', diam: 6779,   a: 1.524, e: 0.0934, i: 1.85,  L: 355.45, wBar: 336.04, Om: 49.56,  url: 'https://marsresource.net',    desc: 'The Red Planet · future colony target · 6,779 km' },
-  { name: 'Jupiter', color: '#c88040', diam: 139820, a: 5.203, e: 0.0489, i: 1.30,  L: 34.40,  wBar: 14.73,  Om: 100.56, url: 'https://jupiterresource.net', desc: 'Largest planet · Great Red Spot · 139,820 km' },
-  { name: 'Saturn',  color: '#d4b46a', diam: 116460, a: 9.537, e: 0.0565, i: 2.49,  L: 49.94,  wBar: 92.43,  Om: 113.72, url: 'https://saturnresource.net',  desc: 'Ringed giant · lowest density · 116,460 km' },
-  { name: 'Uranus',  color: '#7ec8d4', diam: 50724,  a: 19.19, e: 0.0463, i: 0.77,  L: 313.23, wBar: 170.96, Om: 74.01,  url: 'https://uranusresource.net',  desc: 'Ice giant · extreme axial tilt · 50,724 km' },
-  { name: 'Neptune', color: '#4060d4', diam: 49244,  a: 30.07, e: 0.0095, i: 1.77,  L: 304.88, wBar: 44.97,  Om: 131.78, url: 'https://neptuneresource.net', desc: 'Farthest planet · strongest winds · 49,244 km' },
+  { name: 'Mercury', color: '#a0a0a0', diam: 4879,   a: 0.38710, e: 0.20564, i: 7.005, L: 252.25, wBar: 77.46,  Om: 48.33,  url: 'https://mercuryresource.net', desc: 'Closest to the Sun · extreme temperatures · 4,879 km' },
+  { name: 'Venus',   color: '#e8dcc0', diam: 12104,  a: 0.72333, e: 0.00678, i: 3.395, L: 181.98, wBar: 131.53, Om: 76.68,  url: 'https://venusresource.net',   desc: 'Hottest planet · retrograde rotation · 12,104 km' },
+  { name: 'Earth',   color: '#4da6ff', diam: 12742,  a: 1.00000, e: 0.01671, i: 0.000, L: 100.46, wBar: 102.94, Om: -11.26, url: 'https://terraresource.net',   desc: 'Our home · liquid water · 12,742 km' },
+  { name: 'Mars',    color: '#d2694a', diam: 6779,   a: 1.52366, e: 0.09339, i: 1.850, L: 355.45, wBar: 336.04, Om: 49.56,  url: 'https://marsresource.net',    desc: 'The Red Planet · future colony target · 6,779 km' },
+  { name: 'Jupiter', color: '#c88040', diam: 139820, a: 5.20336, e: 0.04839, i: 1.304, L: 34.40,  wBar: 14.73,  Om: 100.56, url: 'https://jupiterresource.net', desc: 'Largest planet · Great Red Spot · 139,820 km' },
+  { name: 'Saturn',  color: '#d4b46a', diam: 116460, a: 9.53707, e: 0.05415, i: 2.485, L: 49.94,  wBar: 92.43,  Om: 113.72, url: 'https://saturnresource.net',  desc: 'Ringed giant · lowest density · 116,460 km' },
+  { name: 'Uranus',  color: '#7ec8d4', diam: 50724,  a: 19.1913, e: 0.04717, i: 0.772, L: 313.23, wBar: 170.96, Om: 74.01,  url: 'https://uranusresource.net',  desc: 'Ice giant · extreme axial tilt · 50,724 km' },
+  { name: 'Neptune', color: '#4060d4', diam: 49244,  a: 30.0690, e: 0.00859, i: 1.770, L: 304.88, wBar: 44.97,  Om: 131.78, url: 'https://neptuneresource.net', desc: 'Farthest planet · strongest winds · 49,244 km' },
 ];
 
 RS.icrfToFixed = function(posIcrf) {
@@ -213,9 +214,11 @@ RS.getPlanetPosition = function(planet) {
   var AU = 149597870700;
   var p = RS.PLANETS_DATA.find(function(x) { return x.name === planet; });
   if (!p) return { pos: new Cesium.Cartesian3(), distKm: 1 };
+  // Days since J2000 (JD 2451545.0 = 2000-01-01T12:00:00Z)
   var d = Cesium.JulianDate.daysDifference(Cesium.JulianDate.now(), Cesium.JulianDate.fromIso8601('2000-01-01T12:00:00Z'));
-  var T = d / 36525;
-  var M = (p.L + 360 * T / (Math.pow(p.a, 1.5) * 365.25) - p.wBar) % 360 * Math.PI / 180;
+  // Mean anomaly: n * elapsed_years = (360 / a^1.5 yr) * (d / 365.25). Prior
+  // revision divided d by 36525 here, leaving planets stuck near J2000.
+  var M = (((p.L + 360 * d / (Math.pow(p.a, 1.5) * 365.25) - p.wBar) % 360) + 360) % 360 * Math.PI / 180;
   var E = M;
   for (var k = 0; k < 10; k++) E = M + p.e * Math.sin(E);
   var v = 2 * Math.atan2(Math.sqrt(1 + p.e) * Math.sin(E / 2), Math.sqrt(1 - p.e) * Math.cos(E / 2));
@@ -242,8 +245,9 @@ RS.getPlanetPositionXYZ = function(name) {
   if (!p) return null;
   // Days since J2000 (JD 2451545.0 = 2000-01-01T12:00:00Z)
   var d = (Date.now() / 86400000) + 2440587.5 - 2451545.0;
-  var T = d / 36525;
-  var M = (((p.L + 360 * T / (Math.pow(p.a, 1.5) * 365.25) - p.wBar) % 360) + 360) % 360 * Math.PI / 180;
+  // Mean anomaly: n * elapsed_years = (360 / a^1.5 yr) * (d / 365.25). Prior
+  // revision divided d by 36525 here, leaving planets stuck near J2000.
+  var M = (((p.L + 360 * d / (Math.pow(p.a, 1.5) * 365.25) - p.wBar) % 360) + 360) % 360 * Math.PI / 180;
   var E = M;
   for (var k = 0; k < 10; k++) E = M + p.e * Math.sin(E);
   var v = 2 * Math.atan2(Math.sqrt(1 + p.e) * Math.sin(E/2), Math.sqrt(1 - p.e) * Math.cos(E/2));
