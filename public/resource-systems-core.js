@@ -687,7 +687,7 @@ RS.renderFootLinks = function() {
   return '<span class="tb-footlinks" style="' + s + '">' +
     '<a href="https://instagram.com/resourcesystems" target="_blank" style="' + a + '">IG</a>' +
     '<a href="https://x.com/resource_sys" target="_blank" style="' + a + '">X</a>' +
-    '<a href="/wiki" style="' + a + '">Wiki</a>' +
+    '<a href="/research" style="' + a + '">Research Archive</a>' +
     '<a href="/faq" style="' + a + '">FAQ</a>' +
     '<a href="/privacy" style="' + a + '">Privacy</a>' +
     '<a href="/terms" style="' + a + '">Terms</a>' +
@@ -977,7 +977,7 @@ RS.getResponsiveCSS = function(siteKey) {
   '  .pill-switch { display: none; }\n' +
   '  .tb-btn { padding: 3px 6px; font-size: 9px; }\n' +
   '  .topbar a[href*="instagram"], .topbar a[href*="x.com"],\n' +
-  '  .topbar a[href="/faq"], .topbar a[href="/privacy"], .topbar a[href="/terms"] { display: none; }\n\n' +
+  '  .topbar a[href="/research"], .topbar a[href="/faq"], .topbar a[href="/privacy"], .topbar a[href="/terms"] { display: none; }\n\n' +
 
   '  /* ── Sidebars ── */\n' +
   '  .sidebar-left { position: absolute; z-index: 60; height: 100%; width: calc(100vw - 60px); max-width: 300px; left: 0; top: 0; }\n' +
