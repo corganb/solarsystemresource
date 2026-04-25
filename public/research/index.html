@@ -23,6 +23,13 @@
   .lede { font-size: 13px; color: rgba(200,210,230,0.82); margin-bottom: 32px; max-width: 680px; }
   h2 { font-size: 13px; font-weight: 600; color: #e8dcc0; margin: 32px 0 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
   ul { list-style: none; margin-bottom: 24px; }
+  .featured { background: rgba(80,140,220,0.05); border: 1px solid rgba(80,140,220,0.20); border-radius: 6px; padding: 0; margin-bottom: 12px; }
+  .featured .featured-link { display: block; padding: 14px 16px; text-decoration: none; color: inherit; }
+  .featured .featured-link:hover .featured-title { color: var(--accent-link, #7eb6ff); }
+  .featured-title { font-size: 15px; font-weight: 600; color: rgba(245,248,255,0.95); margin-bottom: 6px; line-height: 1.3; }
+  .featured-abstract { font-size: 12.5px; color: rgba(200,210,230,0.78); margin-bottom: 8px; line-height: 1.55; }
+  .featured-meta { font-size: 10.5px; color: rgba(160,172,200,0.55); letter-spacing: 0.04em; }
+
   li { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: rgba(200,210,230,0.85); display: flex; justify-content: space-between; gap: 16px; }
   li:last-child { border-bottom: none; }
   .status { font-size: 10px; color: rgba(160,172,200,0.45); letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; align-self: center; }
@@ -46,8 +53,8 @@
 
   <h2>Upcoming reviews</h2>
   <ul>
+    <li class="featured"><a href="/research/planetary-migration-nice-model" class="featured-link"><div class="featured-title">Planetary migration and the Nice model: dynamical evidence</div><div class="featured-abstract">Review of the Nice model of giant-planet migration, the dynamical evidence from Trojan asymmetry and Kuiper Belt structure, and the Late Heavy Bombardment timing constraints that the model addresses.</div><div class="featured-meta">2026-04-25 &middot; 7 min read &middot; Available now</div></a></li>
     <li><span>Mean motion resonances and the Nice model</span><span class="status">Drafting</span></li>
-    <li><span>Planetary migration and the Grand Tack hypothesis</span><span class="status">Drafting</span></li>
     <li><span>Kuiper Belt population statistics</span><span class="status">Drafting</span></li>
     <li><span>Near-Earth object catalog gaps and survey completeness</span><span class="status">Drafting</span></li>
     <li><span>Dwarf planet inventory beyond Neptune</span><span class="status">Drafting</span></li>
