@@ -131,6 +131,11 @@ html, body {
   letter-spacing: 0.04em;
   cursor: pointer;
 }
+.tb-brand > div:last-child {
+  display: flex; flex-direction: column; line-height: 1.15;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
 .tb-brand-mark {
   width: 26px; height: 26px;
   display: flex; align-items: center; justify-content: center;
@@ -439,7 +444,7 @@ html, body {
     <div class="tb-brand" onclick="window.location.reload()">
       <div class="tb-brand-mark"></div>
       <div>
-        SOLAR SYSTEM RESOURCE<br>
+        <span>SOLAR SYSTEM RESOURCE</span>
         <span class="tb-subtitle">a Corgan Studio intelligence platform</span>
       </div>
     </div>
