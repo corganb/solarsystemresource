@@ -436,6 +436,7 @@ html, body {
 
 
 
+
   /* ═══ UNIFIED MOBILE LAYOUT (synced across all RS sites) ═══ */
   /* Source: scripts/sync_mobile_css.py - edit there and resync to keep all sites consistent. */
   /* Layout: brand fixed at left, planet-nav scrolls in the middle, auth/research */
@@ -478,13 +479,13 @@ html, body {
     .tb-footlinks a { font-size: 9.5px; white-space: nowrap; }
     .tb-footlinks a[href="/research"] { font-size: 10px; opacity: 1; font-weight: 500; }
     .tb-btn { padding: 4px 8px; font-size: 10px; }
-    /* Sidebar toggle: below the topbar (44px). Position fixed so the
-       toggle moves out of the topbar flow and sits in the viewer area. */
-    .sb-toggle, #rs-sidebar-toggle {
+    /* Sidebar toggles (left + Terra's right). Position fixed below the
+       topbar so they sit in the viewer area and never overlap the nav row. */
+    .sb-toggle, #rs-sidebar-toggle, .sb-toggle-right {
       display: flex !important; align-items: center; justify-content: center;
       width: 40px !important; height: 40px !important;
       position: fixed !important;
-      top: 50px !important; left: 8px !important;
+      top: 50px !important;
       margin: 0 !important;
       font-size: 18px !important; z-index: 70 !important;
       background: var(--panel-bg, rgba(10,12,20,0.94)) !important;
@@ -492,6 +493,8 @@ html, body {
       border-radius: 6px !important;
       color: var(--t1, #e8eaf0) !important;
     }
+    .sb-toggle, #rs-sidebar-toggle { left: 8px !important; right: auto !important; }
+    .sb-toggle-right { right: 8px !important; left: auto !important; }
     /* DSN: compact corner */
     #dsn-panel {
       width: 200px; max-width: 56vw; max-height: 120px;
