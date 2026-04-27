@@ -1,3 +1,0 @@
-# Redirect www subdomain to apex (Cloudflare Pages _redirects format)
-# Apex is the canonical domain set on the page <link rel="canonical">.
-https://www.solarsystemresource.com/*  https://solarsystemresource.com/:splat  301
