@@ -432,38 +432,60 @@ html, body {
   .statusbar { font-size: 8.5px; gap: 10px; padding: 0 8px; }
 }
 
+
   /* ═══ UNIFIED MOBILE LAYOUT (synced across all RS sites) ═══ */
   /* Source: scripts/sync_mobile_css.py - edit there and resync to keep all sites consistent. */
+  /* Pattern based on terra/moon/mars: horizontal-scrolling topbar, single row */
   @media (max-width: 768px) {
-    .topbar { height: 44px; padding: 0 10px; }
+    /* Topbar: single row, horizontal scroll, hidden scrollbar */
+    .topbar {
+      height: 44px !important; min-height: 44px; padding: 0 8px !important;
+      flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      gap: 4px;
+    }
+    .topbar::-webkit-scrollbar { display: none; }
+    .topbar > * { flex-shrink: 0; }
+    /* tb-center / planet-nav: stays inline with the rest of topbar */
+    .tb-center { position: static !important; flex: 0 0 auto !important; min-width: 0; }
+    .planet-nav { gap: 2px; flex-shrink: 0; flex-wrap: nowrap; }
+    .planet-nav button, .planet-nav .planet-btn { width: 24px; height: 24px; }
+    /* Right cluster: take it out of absolute so it scrolls inline with the rest */
+    .tb-right { position: static !important; right: auto !important; top: auto !important; transform: none !important; flex-shrink: 0; margin-left: auto; }
+    /* Brand: compact */
     .tb-brand-mark, .tb-brand-mark svg { width: 22px; height: 22px; }
     .tb-brand > div:last-child { font-size: 11px; }
     .tb-subtitle { display: none; }
-    .tb-footlinks { display: none !important; }
+    /* Hide social and legal links from the mobile topbar to keep the scroll tight */
+    .tb-footlinks a[href*="instagram"], .tb-footlinks a[href*="x.com"],
+    .tb-footlinks a[href="/faq"], .tb-footlinks a[href="/privacy"], .tb-footlinks a[href="/terms"] { display: none; }
+    .tb-footlinks a[href="/research"] { font-size: 10px; opacity: 0.85; }
     .tb-btn { padding: 4px 8px; font-size: 10px; }
-    .planet-nav { gap: 1px; }
-    .planet-nav button, .planet-nav .planet-btn { width: 22px; height: 22px; }
+    /* Sidebar toggle: 40px tap target, top-left */
     .sb-toggle, #rs-sidebar-toggle {
-      display: flex; align-items: center; justify-content: center;
+      display: flex !important; align-items: center; justify-content: center;
       width: 40px; height: 40px; top: 6px; left: 6px;
       font-size: 18px; z-index: 70;
     }
+    /* DSN: compact corner */
     #dsn-panel {
       width: 200px; max-width: 56vw; max-height: 120px;
       bottom: 6px; right: 6px; padding: 6px 8px; font-size: 9.5px;
     }
     #dsn-panel .dsn-head { font-size: 9px; margin-bottom: 4px; }
+    /* Reset-view: 36px corner */
     #reset-view { width: 36px; height: 36px; font-size: 14px; bottom: 8px; left: 8px; }
+    /* Statusbar shrink */
     .statusbar { height: 22px; font-size: 9px; gap: 12px; padding: 0 8px; }
   }
   @media (max-width: 480px) {
-    .topbar { height: 40px; padding: 0 8px; }
+    .topbar { height: 40px !important; min-height: 40px; padding: 0 6px !important; }
     .statusbar { display: none; }
     #dsn-panel { max-width: 52vw; max-height: 100px; font-size: 9px; padding: 5px 7px; }
     #reset-view { width: 32px; height: 32px; font-size: 13px; bottom: 6px; left: 6px; }
     .tb-brand > div:last-child { font-size: 10px; }
     .tb-brand-mark, .tb-brand-mark svg { width: 20px; height: 20px; }
-    .planet-nav button, .planet-nav .planet-btn { width: 20px; height: 20px; }
+    .planet-nav button, .planet-nav .planet-btn { width: 22px; height: 22px; }
   }
   /* ═══ END UNIFIED MOBILE ═══ */
 </style>
