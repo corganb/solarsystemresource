@@ -433,38 +433,53 @@ html, body {
 }
 
 
+
   /* ═══ UNIFIED MOBILE LAYOUT (synced across all RS sites) ═══ */
   /* Source: scripts/sync_mobile_css.py - edit there and resync to keep all sites consistent. */
-  /* Pattern based on terra/moon/mars: horizontal-scrolling topbar, single row */
+  /* Layout: brand fixed at left, planet-nav scrolls in the middle, auth/research */
+  /* always visible at right (above scroll). Hamburger below the topbar. */
   @media (max-width: 768px) {
-    /* Topbar: single row, horizontal scroll, hidden scrollbar */
+    /* Topbar: container; right cluster is absolute and always visible */
     .topbar {
       height: 44px !important; min-height: 44px; padding: 0 8px !important;
-      flex-wrap: nowrap !important; overflow-x: auto; overflow-y: hidden;
-      -webkit-overflow-scrolling: touch; scrollbar-width: none;
-      gap: 4px;
+      position: relative !important; overflow: hidden;
+      flex-wrap: nowrap !important; gap: 4px;
     }
-    .topbar::-webkit-scrollbar { display: none; }
-    .topbar > * { flex-shrink: 0; }
-    /* tb-center / planet-nav: stays inline with the rest of topbar */
-    .tb-center { position: static !important; flex: 0 0 auto !important; min-width: 0; }
-    .planet-nav { gap: 2px; flex-shrink: 0; flex-wrap: nowrap; }
-    .planet-nav button, .planet-nav .planet-btn { width: 24px; height: 24px; }
-    /* Right cluster: take it out of absolute so it scrolls inline with the rest */
-    .tb-right { position: static !important; right: auto !important; top: auto !important; transform: none !important; flex-shrink: 0; margin-left: auto; }
-    /* Brand: compact */
+    /* Brand: fixed at left */
+    .tb-left { flex-shrink: 0; }
     .tb-brand-mark, .tb-brand-mark svg { width: 22px; height: 22px; }
     .tb-brand > div:last-child { font-size: 11px; }
     .tb-subtitle { display: none; }
-    /* Hide social and legal links from the mobile topbar to keep the scroll tight */
+    /* Center: scrollable middle area for planet-nav. Leave room for right cluster. */
+    .tb-center {
+      position: relative !important; flex: 1 1 auto !important; min-width: 0;
+      overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      justify-content: flex-start !important;
+      margin-right: 88px; /* reserve space for absolute tb-right */
+    }
+    .tb-center::-webkit-scrollbar { display: none; }
+    .planet-nav { gap: 2px; flex-shrink: 0; flex-wrap: nowrap; }
+    .planet-nav button, .planet-nav .planet-btn { width: 24px; height: 24px; }
+    /* Right cluster: absolute, fixed at the right, above the scrolling middle */
+    .tb-right {
+      position: absolute !important;
+      right: 8px !important; top: 50% !important; transform: translateY(-50%) !important;
+      z-index: 5; flex-shrink: 0;
+      background: linear-gradient(to right, transparent 0, var(--panel-bg, rgba(10,12,20,0.94)) 14px);
+      padding-left: 14px;
+    }
+    /* Hide social/legal links from the mobile topbar */
     .tb-footlinks a[href*="instagram"], .tb-footlinks a[href*="x.com"],
     .tb-footlinks a[href="/faq"], .tb-footlinks a[href="/privacy"], .tb-footlinks a[href="/terms"] { display: none; }
+    .tb-footlinks { gap: 4px !important; }
     .tb-footlinks a[href="/research"] { font-size: 10px; opacity: 0.85; }
     .tb-btn { padding: 4px 8px; font-size: 10px; }
-    /* Sidebar toggle: 40px tap target, top-left */
+    /* Sidebar toggle: below the topbar (44px) so it never overlaps the nav row */
     .sb-toggle, #rs-sidebar-toggle {
       display: flex !important; align-items: center; justify-content: center;
-      width: 40px; height: 40px; top: 6px; left: 6px;
+      width: 40px; height: 40px;
+      top: 50px !important; left: 8px !important;
       font-size: 18px; z-index: 70;
     }
     /* DSN: compact corner */
@@ -480,6 +495,9 @@ html, body {
   }
   @media (max-width: 480px) {
     .topbar { height: 40px !important; min-height: 40px; padding: 0 6px !important; }
+    .tb-center { margin-right: 80px; }
+    .tb-right { right: 6px !important; }
+    .sb-toggle, #rs-sidebar-toggle { top: 46px !important; left: 6px !important; }
     .statusbar { display: none; }
     #dsn-panel { max-width: 52vw; max-height: 100px; font-size: 9px; padding: 5px 7px; }
     #reset-view { width: 32px; height: 32px; font-size: 13px; bottom: 6px; left: 6px; }
