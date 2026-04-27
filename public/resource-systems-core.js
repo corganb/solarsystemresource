@@ -671,7 +671,8 @@ RS.renderTopBar = function(siteKey, siteName) {
 RS.wireTopBar = function() {
   var btn = document.getElementById('rs-sidebar-toggle');
   if (!btn) return;
-  btn.addEventListener('click', function() {
+  btn.addEventListener('click', function(ev) {
+    ev.stopPropagation();
     var sb = document.querySelector('.sidebar-left') || document.querySelector('.sidebar');
     if (!sb) return;
     // Mobile sidebars start off-screen via transform: translateX(-100%) and use
@@ -683,6 +684,16 @@ RS.wireTopBar = function() {
     } else {
       sb.classList.toggle('shut');
     }
+  });
+
+  // Tap outside the open sidebar to close it (mobile only). Skipped on
+  // desktop where the sidebar is part of the persistent layout.
+  document.addEventListener('click', function(ev) {
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    var sb = document.querySelector('.sidebar-left') || document.querySelector('.sidebar');
+    if (!sb || !sb.classList.contains('open')) return;
+    if (sb.contains(ev.target) || btn.contains(ev.target)) return;
+    sb.classList.remove('open');
   });
 };
 
