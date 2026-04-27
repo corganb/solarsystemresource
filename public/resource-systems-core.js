@@ -674,12 +674,13 @@ RS.wireTopBar = function() {
   btn.addEventListener('click', function() {
     var sb = document.querySelector('.sidebar-left') || document.querySelector('.sidebar');
     if (!sb) return;
-    if (sb.classList.contains('shut')) {
-      sb.classList.remove('shut');
-    } else if (sb.classList.contains('open')) {
-      sb.classList.remove('open');
+    // Mobile sidebars start off-screen via transform: translateX(-100%) and use
+    // .open to slide in. Desktop sidebars are visible by default and use .shut
+    // to collapse. Detect via the same breakpoint the unified mobile CSS uses.
+    var isMobile = window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile) {
+      sb.classList.toggle('open');
     } else {
-      // Desktop toggle: use 'shut' class to collapse
       sb.classList.toggle('shut');
     }
   });

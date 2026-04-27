@@ -434,6 +434,7 @@ html, body {
 
 
 
+
   /* ═══ UNIFIED MOBILE LAYOUT (synced across all RS sites) ═══ */
   /* Source: scripts/sync_mobile_css.py - edit there and resync to keep all sites consistent. */
   /* Layout: brand fixed at left, planet-nav scrolls in the middle, auth/research */
@@ -456,7 +457,7 @@ html, body {
       overflow-x: auto; overflow-y: hidden;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
       justify-content: flex-start !important;
-      margin-right: 88px; /* reserve space for absolute tb-right */
+      margin-right: 220px; /* reserve space for the wider tb-right (auth + footlinks) */
     }
     .tb-center::-webkit-scrollbar { display: none; }
     .planet-nav { gap: 2px; flex-shrink: 0; flex-wrap: nowrap; }
@@ -465,15 +466,16 @@ html, body {
     .tb-right {
       position: absolute !important;
       right: 8px !important; top: 50% !important; transform: translateY(-50%) !important;
-      z-index: 5; flex-shrink: 0;
+      z-index: 5; flex-shrink: 0; gap: 6px !important;
       background: linear-gradient(to right, transparent 0, var(--panel-bg, rgba(10,12,20,0.94)) 14px);
       padding-left: 14px;
     }
-    /* Hide social/legal links from the mobile topbar */
+    /* Hide only social and legal-noise links; keep FAQ, Privacy, Research Archive visible */
     .tb-footlinks a[href*="instagram"], .tb-footlinks a[href*="x.com"],
-    .tb-footlinks a[href="/faq"], .tb-footlinks a[href="/privacy"], .tb-footlinks a[href="/terms"] { display: none; }
-    .tb-footlinks { gap: 4px !important; }
-    .tb-footlinks a[href="/research"] { font-size: 10px; opacity: 0.85; }
+    .tb-footlinks a[href="/terms"] { display: none; }
+    .tb-footlinks { display: flex !important; gap: 6px !important; opacity: 0.7; }
+    .tb-footlinks a { font-size: 9.5px; white-space: nowrap; }
+    .tb-footlinks a[href="/research"] { font-size: 10px; opacity: 1; font-weight: 500; }
     .tb-btn { padding: 4px 8px; font-size: 10px; }
     /* Sidebar toggle: below the topbar (44px) so it never overlaps the nav row */
     .sb-toggle, #rs-sidebar-toggle {
