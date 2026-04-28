@@ -1373,3 +1373,43 @@ RS.openPanorama = function(imageUrl, title) {
   function escHandler(e) { if (e.key === 'Escape') closePano(); }
   document.addEventListener('keydown', escHandler);
 };
+
+// ═══ WEBGL CONTEXT RECOVERY ═══
+// Detect WebGL context loss (GPU driver install, GPU switch, browser
+// context-limit eviction) and reload the page so Cesium re-initializes
+// against a fresh context. Without this, the canvas goes blank and the
+// user has no signal that a refresh is needed.
+RS.installWebGLRecovery = function(viewer) {
+  if (!viewer || !viewer.scene || !viewer.scene.canvas) return;
+  if (RS._webglRecoveryInstalled) return;
+  RS._webglRecoveryInstalled = true;
+
+  var canvas = viewer.scene.canvas;
+
+  canvas.addEventListener('webglcontextlost', function(e) {
+    e.preventDefault();
+    console.warn('[RS] WebGL context lost. Reloading to restore 3D view.');
+
+    if (document.getElementById('rs-webgl-banner')) return;
+    var banner = document.createElement('div');
+    banner.id = 'rs-webgl-banner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(14,16,20,0.96);border-bottom:1px solid rgba(255,180,80,0.4);color:#ffb480;font-family:JetBrains Mono,monospace;font-size:12px;padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center;backdrop-filter:blur(8px)';
+    banner.innerHTML = '<span>3D context lost (GPU driver or display change). Reloading in <span id="rs-wgl-count">3</span>s...</span><button id="rs-wgl-now" style="background:rgba(255,180,80,0.15);border:1px solid rgba(255,180,80,0.5);color:#ffb480;padding:4px 10px;border-radius:4px;font-family:inherit;font-size:11px;cursor:pointer">Reload now</button><button id="rs-wgl-cancel" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:4px 10px;border-radius:4px;font-family:inherit;font-size:11px;cursor:pointer">Cancel</button>';
+    document.body.appendChild(banner);
+
+    var n = 3;
+    var timer = setInterval(function() {
+      n -= 1;
+      var el = document.getElementById('rs-wgl-count');
+      if (el) el.textContent = String(n);
+      if (n <= 0) { clearInterval(timer); location.reload(); }
+    }, 1000);
+
+    document.getElementById('rs-wgl-now').addEventListener('click', function() {
+      clearInterval(timer); location.reload();
+    });
+    document.getElementById('rs-wgl-cancel').addEventListener('click', function() {
+      clearInterval(timer); banner.remove();
+    });
+  }, false);
+};
