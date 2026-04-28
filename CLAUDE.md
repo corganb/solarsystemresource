@@ -17,13 +17,13 @@
 ## Hard rules
 1. **No em dashes.** Anywhere. Use hyphens, colons, or parentheses.
 2. **`basePath` for Spacekit MUST include `/src`.** Use `basePath: 'https://typpo.github.io/spacekit/src'`. Spacekit internally does `replace("{{assets}}", basePath + "/assets")`, so leaving off `/src` makes every sprite texture 404 and planets render as invisible points. See `public/index.html` around line 587.
-3. **Cache-bust core.js after edits.** Bump `?v=N` on the `<script src>` tag. Current: `v=18`.
+3. **Cache-bust core.js after edits.** Bump `?v=N` on the `<script src>` tag. Current: `v=24`.
 4. **Verify syntax before pushing.** On the last `<script>` block, check `{` vs `}` balance and even backtick count.
 5. **Commit early, commit often.** One logical change per commit.
 6. **Python or Edit tool for multi-line edits.** Bash heredocs and repeated sed drop characters on this machine.
 7. **Commit attribution: Corgan Studio, Inc. only.** Never add Co-Authored-By Claude.
 
-## Shared RS.* API (core.js v=18)
+## Shared RS.* API (core.js v=24)
 - `RS.renderTopBar(opts)` - centralized top nav
 - `RS.renderFootLinks()` - consistent footer nav
 - `RS.showAnalysisPanel(data)` - click-to-inspect detail panel
