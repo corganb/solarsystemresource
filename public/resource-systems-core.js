@@ -685,17 +685,29 @@ RS.wireTopBar = function() {
       sb.classList.toggle('shut');
     }
   });
+};
 
-  // Tap outside the open sidebar to close it (mobile only). Skipped on
-  // desktop where the sidebar is part of the persistent layout.
+// Tap outside the open sidebar to close it (mobile only). Auto-runs on any
+// site that loads core.js so Cesium and Spacekit sites get the behavior too.
+// Recognises every known toggle id/class so it doesn't double-fire when the
+// click is on the toggle itself.
+(function wireOutsideClose() {
+  if (typeof document === 'undefined') return;
   document.addEventListener('click', function(ev) {
     if (!window.matchMedia('(max-width: 768px)').matches) return;
-    var sb = document.querySelector('.sidebar-left') || document.querySelector('.sidebar');
-    if (!sb || !sb.classList.contains('open')) return;
-    if (sb.contains(ev.target) || btn.contains(ev.target)) return;
+    var sb = document.querySelector('.sidebar-left.open')
+          || document.querySelector('.sidebar.open');
+    if (!sb) return;
+    if (sb.contains(ev.target)) return;
+    var toggles = document.querySelectorAll(
+      '.sb-toggle, .sb-toggle-right, #rs-sidebar-toggle, #mobile-sb-toggle'
+    );
+    for (var i = 0; i < toggles.length; i++) {
+      if (toggles[i].contains(ev.target)) return;
+    }
     sb.classList.remove('open');
   });
-};
+})();
 
 // Shared footer/nav links rendered in the topbar right section.
 // Called from each site's initTopBar wiring so any change propagates
