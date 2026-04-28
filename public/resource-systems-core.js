@@ -1199,7 +1199,9 @@ RS.openUpgradeModal = function(reason, requiredTier) {
 // ═══ 360 PANORAMA VIEWER ═══
 // Self-contained WebGL equirectangular sphere viewer.
 // Usage: RS.openPanorama('panoramas/apollo17.jpg', 'Apollo 17 - Taurus-Littrow Valley')
-RS.openPanorama = function(imageUrl, title) {
+//        RS.openPanorama(url, title, { preview: true })  // shows preview banner
+RS.openPanorama = function(imageUrl, title, opts) {
+  opts = opts || {};
   // Remove existing
   var existing = document.getElementById('rs-pano-overlay');
   if (existing) existing.remove();
@@ -1214,6 +1216,14 @@ RS.openPanorama = function(imageUrl, title) {
   header.innerHTML = '<div style="pointer-events:auto"><div style="font-size:14px;font-weight:600;color:#fff;font-family:\'JetBrains Mono\',\'IBM Plex Mono\',monospace">' + (title || '360 Panorama') + '</div><div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">Drag to look around</div></div>' +
     '<button id="rs-pano-close" style="pointer-events:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;font-size:14px;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center">\u2715</button>';
   overlay.appendChild(header);
+
+  // Preview banner (placeholder imagery, real version not yet ingested)
+  if (opts.preview) {
+    var preview = document.createElement('div');
+    preview.style.cssText = 'position:absolute;bottom:16px;left:50%;transform:translateX(-50%);z-index:10002;padding:8px 14px;background:rgba(20,18,30,0.85);border:1px solid rgba(255,180,80,0.35);border-radius:6px;color:#ffd9aa;font-size:11px;font-family:"JetBrains Mono",monospace;backdrop-filter:blur(6px);pointer-events:none;letter-spacing:0.02em';
+    preview.textContent = 'Preview placeholder. Real high-resolution panorama not yet ingested.';
+    overlay.appendChild(preview);
+  }
 
   // Canvas
   var canvas = document.createElement('canvas');
