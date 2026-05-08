@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Near-Earth object catalog gaps and survey completeness | SolarSystemResource Research Archive</title>
+<meta name="description" content="Review of the Near-Earth Object catalog completeness as of 2026, the contributions of the Catalina Sky Survey, ATLAS, Pan-STARRS, and the upcoming NEO Surveyor mission, and the residual gap in detection of dark and small NEOs.">
+<link rel="canonical" href="/research/neo-survey-completeness">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Near-Earth object catalog gaps and survey completeness">
+<meta property="og:description" content="Review of the Near-Earth Object catalog completeness as of 2026, the contributions of the Catalina Sky Survey, ATLAS, Pan-STARRS, and the upcoming NEO Surveyor mission, and the residual gap in detection of dark and small NEOs.">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2026-04-28">
+<meta property="article:author" content="Corgan Studio, Inc.">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0c10; color: rgba(245,248,255,0.95); font-family: 'JetBrains Mono', 'SF Mono', monospace; line-height: 1.7; }
+  .container { max-width: 760px; margin: 0 auto; padding: 60px 24px 80px; }
+  .back { display: inline-block; color: #e8dcc0; text-decoration: none; font-size: 12px; letter-spacing: 0.05em; margin-bottom: 32px; opacity: 0.7; }
+  .back:hover { opacity: 1; }
+  h1 { font-size: 28px; font-weight: 600; margin-bottom: 10px; color: #e8dcc0; line-height: 1.25; }
+  .abstract { font-size: 14px; color: rgba(200,210,230,0.85); margin-bottom: 16px; max-width: 700px; }
+  .meta { font-size: 11px; color: rgba(160,172,200,0.55); letter-spacing: 0.04em; margin-bottom: 36px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  article h2 { font-size: 13px; font-weight: 600; color: #e8dcc0; margin: 32px 0 12px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+  article p { font-size: 14px; color: rgba(220,228,242,0.9); margin-bottom: 14px; }
+  article p strong { color: rgba(245,248,255,1); }
+  .refs { margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .refs h2 { font-size: 12px; font-weight: 600; color: rgba(180,192,210,0.85); margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .refs ol { list-style: decimal; padding-left: 24px; font-size: 12px; color: rgba(180,192,210,0.78); }
+  .refs li { margin-bottom: 8px; line-height: 1.5; }
+  .refs a { color: rgba(180,210,255,0.85); text-decoration: none; word-break: break-all; }
+  .refs a:hover { color: #e8dcc0; }
+  .tier-note { margin-top: 32px; padding: 14px 16px; border-radius: 4px; background: rgba(80,140,220,0.08); border: 1px solid rgba(80,140,220,0.30); color: rgba(200,220,245,0.9); font-size: 12px; line-height: 1.6; }
+  .tier-note strong { color: #7eb6ff; }
+  .tier-note .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; background: rgba(80,140,220,0.15); border: 1px solid rgba(80,140,220,0.4); color: #7eb6ff; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 8px; vertical-align: middle; }
+  .tier-note a { color: #7eb6ff; }
+  .footer { margin-top: 48px; font-size: 11px; color: rgba(130,145,175,0.5); display: flex; gap: 16px; flex-wrap: wrap; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); }
+  .footer a { color: rgba(160,172,200,0.65); text-decoration: none; }
+  .footer a:hover { color: rgba(200,210,230,0.9); }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/research" class="back">&larr; Research Archive</a>
+  <h1>Near-Earth object catalog gaps and survey completeness</h1>
+  <div class="abstract">Review of the Near-Earth Object catalog completeness as of 2026, the contributions of the Catalina Sky Survey, ATLAS, Pan-STARRS, and the upcoming NEO Surveyor mission, and the residual gap in detection of dark and small NEOs.</div>
+  <div class="meta">2026-04-28 &middot; 6 min read &middot; Reviewed by Corgan Studio, Inc.</div>
+
+  <article>
+
+    <h2>Introduction</h2>
+    <p>Near-Earth Objects (NEOs) are asteroids and comets with perihelia less than 1.3 AU. The catalog of known NEOs is essential to planetary defence: an unknown impact-class NEO cannot be deflected. The U.S. Congress has mandated cataloguing of all NEOs larger than 140 m diameter (an impact-class threshold roughly equivalent to a regional-scale damage event). Current ground-based and planned space-based surveys are progressively reducing the catalog gap. This report reviews the survey landscape, completeness statistics, and the principal remaining gaps.</p>
+
+    <h2>The catalog as of 2026</h2>
+    <p>The Minor Planet Center (MPC) catalogue lists approximately 35,000 NEOs as of early 2026. Of these, approximately 11,000 are larger than 140 m diameter (the congressional-mandate threshold), against a total estimated population of approximately 25,000 in this size range - giving completeness of approximately 44 percent. For the larger 1 km size class, completeness is approximately 95 percent of the estimated 1,000-object population. For the smaller 30 m size class, completeness is below 5 percent of the estimated population approaching 1 million.</p>
+
+    <h2>Ground-based surveys</h2>
+    <p>Three ground-based surveys dominate current NEO discovery:</p>
+    <p><strong>Catalina Sky Survey</strong> (CSS) at Mount Lemmon Observatory uses three telescopes operating since 2003. CSS has produced the largest cumulative discovery count of NEOs.</p>
+    <p><strong>Pan-STARRS</strong> (Panoramic Survey Telescope and Rapid Response System) at Haleakala uses two 1.8 m telescopes operating since 2010. Pan-STARRS produces the deepest survey at the largest sky-area cadence.</p>
+    <p><strong>ATLAS</strong> (Asteroid Terrestrial-impact Last Alert System) uses four 0.5 m telescopes (in Hawaii, Chile, and South Africa) optimised for short-warning detection of small impacting NEOs. ATLAS specialises in last-minute warning rather than survey completeness.</p>
+    <p>Several other surveys (the ESA Flyeye telescope, the Korean SOAR network, China's STA programme) provide complementary coverage. The combined ground-based programme is estimated to take approximately 30 years to reach 90 percent completeness at the 140 m level under current cadence.</p>
+
+    <h2>The dark-NEO gap</h2>
+    <p>Ground-based optical surveys are sensitive to NEO reflected sunlight. Dark NEOs (geometric albedo less than 0.05) are under-detected because the apparent brightness of a given NEO depends on size and albedo together. The dark-NEO population is estimated at approximately 30 percent of the total but is under-represented in the catalogue by a factor of 2-3. The bias is most severe for the smaller size classes where survey detection is at the magnitude limit.</p>
+
+    <h2>Space-based survey advantage</h2>
+    <p>Space-based infrared surveys detect NEOs by their thermal emission, which is approximately independent of albedo. Infrared surveys therefore close the dark-NEO gap and have higher completeness for a given mission lifetime than equivalent ground-based optical surveys. Two infrared mission classes are relevant:</p>
+    <p><strong>Repurposed missions:</strong> NASA's NEOWISE used the WISE infrared satellite for NEO discovery from 2013 to early 2024. NEOWISE produced approximately 1,000 NEO discoveries plus albedo-and-diameter measurements for approximately 30,000 NEOs.</p>
+    <p><strong>Dedicated missions:</strong> NEO Surveyor (formerly NEOCam), planned for 2027 launch by NASA, is a dedicated infrared survey telescope at the Sun-Earth L1 Lagrange point. NEO Surveyor is designed to reach 90 percent completeness at the 140 m size class within approximately 10 years of operation, dramatically faster than ground-based completeness extrapolation.</p>
+
+    <h2>Vera C. Rubin Observatory contribution</h2>
+    <p>The Vera C. Rubin Observatory (LSST) begins full operation in 2026 and is expected to dramatically increase NEO discovery cadence. Rubin's wide-field, deep-imaging survey will detect approximately 100,000 new NEOs in its first decade, including most of the remaining 140 m-class population. The Rubin survey is optical and therefore subject to the dark-NEO bias, but the deep imaging will identify many smaller NEOs that ATLAS-class surveys miss.</p>
+
+    <h2>Planetary defence integration</h2>
+    <p>NASA's Planetary Defense Coordination Office, established in 2016, integrates NEO catalogue data with impact-risk assessment and deflection planning. The DART mission (2022) demonstrated kinetic-impactor deflection of asteroid Dimorphos, validating the principal active-defence technique. Combined with the catalogue completeness investment, the planetary-defence framework is now mature enough to handle most realistic impact scenarios with adequate warning. The remaining vulnerability is short-warning impacts from previously-undetected NEOs, particularly in the dark-NEO and small-size populations.</p>
+
+    <h2>Outlook</h2>
+    <p>The NEO Surveyor launch (2027) and Vera C. Rubin Observatory full operations (2026) together constitute a step-change in NEO catalogue completeness. The 90 percent completeness goal at the 140 m size class is expected to be reached in the early 2030s. Beyond that, the smaller-size populations remain a long-term completeness challenge that will be addressed by continued ground-based and space-based survey investment.</p>
+  </article>
+
+  <div class="refs">
+    <h2>References</h2>
+    <ol>
+      <li><a href="https://www.minorplanetcenter.net/" target="_blank" rel="noopener">IAU Minor Planet Center</a></li>
+      <li><a href="https://cneos.jpl.nasa.gov/" target="_blank" rel="noopener">NASA Center for Near Earth Object Studies</a></li>
+      <li><a href="https://neos.arizona.edu/" target="_blank" rel="noopener">NASA NEO Surveyor mission</a></li>
+      <li><a href="https://www.nasa.gov/planetarydefense/" target="_blank" rel="noopener">NASA Planetary Defense Coordination Office</a></li>
+      <li><a href="https://www.lsst.org/" target="_blank" rel="noopener">Vera C. Rubin Observatory LSST</a></li>
+    </ol>
+  </div>
+
+  <div class="tier-note"><span class="pill">Researcher</span><strong>Citation exports.</strong> This article is open and free to read. Researcher tier subscribers can download a citation-ready PDF (with formatted bibliography), BibTeX entry, and persistent article identifier for use in published work. <a href="/">See plans</a>.</div>
+
+  <div class="footer">
+    <a href="/">Home</a>
+    <a href="/research">Research Archive</a>
+    <a href="/faq">FAQ</a>
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+  </div>
+</div>
+</body>
+</html>
