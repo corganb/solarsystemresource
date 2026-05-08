@@ -1423,3 +1423,32 @@ RS.installWebGLRecovery = function(viewer) {
     });
   }, false);
 };
+
+// Cloudflare Web Analytics injection. Reads the token from
+// <meta name="rs-cf-analytics-token" content="..."> or window.RS_CF_ANALYTICS_TOKEN.
+// Skips silently if no token is present, so the meta tag can ship empty
+// across all sites and only activate when the value is filled in. Single
+// shared token works across all 13 sibling sites (CF allows per-domain
+// filtering on the dashboard side).
+RS.wireCfAnalytics = function() {
+  if (window.__RS_CF_ANALYTICS_WIRED) return;
+  var token = window.RS_CF_ANALYTICS_TOKEN;
+  if (!token) {
+    var meta = document.querySelector('meta[name="rs-cf-analytics-token"]');
+    if (meta) token = (meta.getAttribute('content') || '').trim();
+  }
+  if (!token) return;
+  var s = document.createElement('script');
+  s.defer = true;
+  s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+  s.setAttribute('data-cf-beacon', '{"token": "' + token + '"}');
+  document.head.appendChild(s);
+  window.__RS_CF_ANALYTICS_WIRED = true;
+};
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { RS.wireCfAnalytics(); });
+  } else {
+    RS.wireCfAnalytics();
+  }
+}
